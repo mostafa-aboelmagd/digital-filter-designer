@@ -29,154 +29,252 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1294, 942)
-        MainWindow.setStyleSheet(u"#centralwidget {\n"
-"	background: #15242d;	\n"
-"\n"
-"}\n"
-"\n"
-"\n"
-"QWidget {\n"
-"	background: rgb(37, 38, 49);	\n"
-"	color:white;\n"
-"}\n"
-"QGroupBox {\n"
-"	background: #15242d;\n"
-"	color:rgb(241, 241, 241);\n"
-"}\n"
-"\n"
-"QComboBox{\n"
-"	background: white;\n"
-"	color:black;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"	background: rgb(0, 24, 36);\n"
-"	color:rgb(241, 241, 241);\n"
-"}\n"
-"\n"
-"")
+
         MainWindow.setStyleSheet("""
-        #centralwidget {
-            background: #0A1929;
-        }
+    #centralwidget {
+        background: #000000;
+    }
+    
+    QWidget {
+        background: #000000;
+        color: #E7EBF0;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    
+    QGroupBox {
+        background: #000000;
+        border: 2px solid #3399FF;
+        border-radius: 8px;
+        margin-top: 1em;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
+    QGroupBox::title {
+        color: #3399FF;
+        subcontrol-origin: margin;
+        subcontrol-position: top center;
+        padding: 0 5px;
+    }
+    
+    QPushButton {
+        background: #000000;
+        border: 2px solid #3399FF;
+        border-radius: 4px;
+        padding: 5px 15px;
+        color: #3399FF;
+        font-weight: bold;
+    }
+    
+    QPushButton:hover {
+        background: #1E4976;
+        border-color: #66B2FF;
+    }
+    
+    QPushButton:pressed {
+        background: #132F4C;
+    }
+    
+    QComboBox {
+        background: #000000;
+        border: 2px solid #3399FF;
+        border-radius: 4px;
+        padding: 5px;
+        color: #3399FF;
+    }
+    
+    QComboBox:hover {
+        border-color: #66B2FF;
+    }
+    
+    QComboBox::drop-down {
+        border: none;
+    }
+    
+    QComboBox::down-arrow {
+        image: url(down_arrow.png);
+        width: 12px;
+        height: 12px;
+    }
+    
+    QSlider::groove:horizontal {
+        border: 1px solid #3399FF;
+        height: 8px;
+        background: #000000;
+        margin: 2px 0;
+        border-radius: 4px;
+    }
+    
+    QSlider::handle:horizontal {
+        background: #3399FF;
+        border: 1px solid #3399FF;
+        width: 18px;
+        margin: -6px 0;
+        border-radius: 9px;
+    }
+    
+    QSlider::handle:horizontal:hover {
+        background: #66B2FF;
+        border-color: #66B2FF;
+    }
+    
+    QCheckBox {
+        spacing: 8px;
+    }
+    
+    QCheckBox::indicator {
+        width: 18px;
+        height: 18px;
+    }
+    
+    QCheckBox::indicator:unchecked {
+        border: 2px solid #3399FF;
+        border-radius: 4px;
+        background: #000000;
+    }
+    
+    QCheckBox::indicator:checked {
+        border: 2px solid #3399FF;
+        border-radius: 4px;
+        background: #3399FF;
+    }
+    
+    PlotWidget {
+        border: 2px solid #3399FF;
+        border-radius: 8px;
+        background: #000000;
+    }
+    
+    QTableWidget {
+        gridline-color: #3399FF;
+        border: 2px solid #3399FF;
+        border-radius: 4px;
+        selection-background-color: #1E4976;
+    }
+""")
         
-        QWidget {
-            background: #132F4C;
-            color: #E7EBF0;
-            font-family: 'Segoe UI', sans-serif;
-        }
+    #     MainWindow.setStyleSheet("""
+    #     #centralwidget {
+    #         background: #0A1929;
+    #     }
         
-        QGroupBox {
-            background: #0A1929;
-            border: 2px solid #3399FF;
-            border-radius: 8px;
-            margin-top: 1em;
-            font-size: 14px;
-            font-weight: bold;
-        }
+    #     QWidget {
+    #         background: #132F4C;
+    #         color: #E7EBF0;
+    #         font-family: 'Segoe UI', sans-serif;
+    #     }
         
-        QGroupBox::title {
-            color: #66B2FF;
-            subcontrol-origin: margin;
-            subcontrol-position: top center;
-            padding: 0 5px;
-        }
+    #     QGroupBox {
+    #         background: #0A1929;
+    #         border: 2px solid #3399FF;
+    #         border-radius: 8px;
+    #         margin-top: 1em;
+    #         font-size: 14px;
+    #         font-weight: bold;
+    #     }
         
-        QPushButton {
-            background: #1E4976;
-            border: 2px solid #3399FF;
-            border-radius: 4px;
-            padding: 5px 15px;
-            color: #E7EBF0;
-            font-weight: bold;
-        }
+    #     QGroupBox::title {
+    #         color: #66B2FF;
+    #         subcontrol-origin: margin;
+    #         subcontrol-position: top center;
+    #         padding: 0 5px;
+    #     }
         
-        QPushButton:hover {
-            background: #265D97;
-            border-color: #66B2FF;
-        }
+    #     QPushButton {
+    #         background: #1E4976;
+    #         border: 2px solid #3399FF;
+    #         border-radius: 4px;
+    #         padding: 5px 15px;
+    #         color: #E7EBF0;
+    #         font-weight: bold;
+    #     }
         
-        QPushButton:pressed {
-            background: #132F4C;
-        }
+    #     QPushButton:hover {
+    #         background: #265D97;
+    #         border-color: #66B2FF;
+    #     }
         
-        QComboBox {
-            background: #1E4976;
-            border: 2px solid #3399FF;
-            border-radius: 4px;
-            padding: 5px;
-            color: #E7EBF0;
-        }
+    #     QPushButton:pressed {
+    #         background: #132F4C;
+    #     }
         
-        QComboBox:hover {
-            border-color: #66B2FF;
-        }
+    #     QComboBox {
+    #         background: #1E4976;
+    #         border: 2px solid #3399FF;
+    #         border-radius: 4px;
+    #         padding: 5px;
+    #         color: #E7EBF0;
+    #     }
         
-        QComboBox::drop-down {
-            border: none;
-        }
+    #     QComboBox:hover {
+    #         border-color: #66B2FF;
+    #     }
         
-        QComboBox::down-arrow {
-            image: url(down_arrow.png);
-            width: 12px;
-            height: 12px;
-        }
+    #     QComboBox::drop-down {
+    #         border: none;
+    #     }
         
-        QSlider::groove:horizontal {
-            border: 1px solid #3399FF;
-            height: 8px;
-            background: #1E4976;
-            margin: 2px 0;
-            border-radius: 4px;
-        }
+    #     QComboBox::down-arrow {
+    #         image: url(down_arrow.png);
+    #         width: 12px;
+    #         height: 12px;
+    #     }
         
-        QSlider::handle:horizontal {
-            background: #3399FF;
-            border: 1px solid #3399FF;
-            width: 18px;
-            margin: -6px 0;
-            border-radius: 9px;
-        }
+    #     QSlider::groove:horizontal {
+    #         border: 1px solid #3399FF;
+    #         height: 8px;
+    #         background: #1E4976;
+    #         margin: 2px 0;
+    #         border-radius: 4px;
+    #     }
         
-        QSlider::handle:horizontal:hover {
-            background: #66B2FF;
-            border-color: #66B2FF;
-        }
+    #     QSlider::handle:horizontal {
+    #         background: #3399FF;
+    #         border: 1px solid #3399FF;
+    #         width: 18px;
+    #         margin: -6px 0;
+    #         border-radius: 9px;
+    #     }
         
-        QCheckBox {
-            spacing: 8px;
-        }
+    #     QSlider::handle:horizontal:hover {
+    #         background: #66B2FF;
+    #         border-color: #66B2FF;
+    #     }
         
-        QCheckBox::indicator {
-            width: 18px;
-            height: 18px;
-        }
+    #     QCheckBox {
+    #         spacing: 8px;
+    #     }
         
-        QCheckBox::indicator:unchecked {
-            border: 2px solid #3399FF;
-            border-radius: 4px;
-            background: #1E4976;
-        }
+    #     QCheckBox::indicator {
+    #         width: 18px;
+    #         height: 18px;
+    #     }
         
-        QCheckBox::indicator:checked {
-            border: 2px solid #3399FF;
-            border-radius: 4px;
-            background: #3399FF;
-        }
+    #     QCheckBox::indicator:unchecked {
+    #         border: 2px solid #3399FF;
+    #         border-radius: 4px;
+    #         background: #1E4976;
+    #     }
         
-        PlotWidget {
-            border: 2px solid #3399FF;
-            border-radius: 8px;
-            background: #132F4C;
-        }
+    #     QCheckBox::indicator:checked {
+    #         border: 2px solid #3399FF;
+    #         border-radius: 4px;
+    #         background: #3399FF;
+    #     }
         
-        QTableWidget {
-            gridline-color: #3399FF;
-            border: 2px solid #3399FF;
-            border-radius: 4px;
-            selection-background-color: #1E4976;
-        }
-    """)
+    #     PlotWidget {
+    #         border: 2px solid #3399FF;
+    #         border-radius: 8px;
+    #         background: #132F4C;
+    #     }
+        
+    #     QTableWidget {
+    #         gridline-color: #3399FF;
+    #         border: 2px solid #3399FF;
+    #         border-radius: 4px;
+    #         selection-background-color: #1E4976;
+    #     }
+    # """)
         self.actionImport = QAction(MainWindow)
         self.actionImport.setObjectName(u"actionImport")
         self.actionExport = QAction(MainWindow)

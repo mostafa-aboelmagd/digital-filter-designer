@@ -392,12 +392,19 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.btn_removeAll)
 
-        self.btn_Remove = QPushButton(self.wgt_buttons)
-        self.btngrp_zerosPoles.addButton(self.btn_Remove)
-        self.btn_Remove.setObjectName(u"btn_Remove")
-        self.btn_Remove.setMaximumSize(QSize(100, 16777215))
+        self.btn_Remove_all_zeros = QPushButton(self.wgt_buttons)
+        self.btngrp_zerosPoles.addButton(self.btn_Remove_all_zeros)
+        self.btn_Remove_all_zeros.setObjectName(u"btn_Remove_all_zeros")
+        self.btn_Remove_all_zeros.setMaximumSize(QSize(100, 16777215))
 
-        self.verticalLayout_3.addWidget(self.btn_Remove)
+        self.verticalLayout_3.addWidget(self.btn_Remove_all_zeros)
+        
+        self.btn_Remove_all_poles = QPushButton(self.wgt_buttons)
+        self.btngrp_zerosPoles.addButton(self.btn_Remove_all_poles)
+        self.btn_Remove_all_poles.setObjectName(u"btn_Remove_all_poles")
+        self.btn_Remove_all_poles.setMaximumSize(QSize(100, 16777215))
+
+        self.verticalLayout_3.addWidget(self.btn_Remove_all_poles)
 
         self.pair_mode_toggle = QCheckBox(self.wgt_buttons)
         self.pair_mode_toggle.setObjectName(u"pair_mode_toggle")
@@ -607,6 +614,7 @@ class Ui_MainWindow(object):
         self.plot_mouseInput.setBackground('#132F4C')
         self.plot_realtimeInput.setBackground('#132F4C')
         
+        
         # Add tooltips
         self.btn_addPoles.setToolTip("Add a pole to the filter design")
         self.btn_addZeros.setToolTip("Add a zero to the filter design")
@@ -651,11 +659,12 @@ class Ui_MainWindow(object):
         self.btn_Redo.setText(QCoreApplication.translate("MainWindow", u"Redo", None))
         self.btn_addPoles.setText(QCoreApplication.translate("MainWindow", u"Add Pole", None))
         self.btn_addZeros.setText(QCoreApplication.translate("MainWindow", u"Add Zero", None))
-        self.btn_Swapping.setText(QCoreApplication.translate("MainWindow", u"Swapping", None))
-        self.btn_removePoles.setText(QCoreApplication.translate("MainWindow", u"Remove Poles", None))
-        self.btn_RemoveZeros.setText(QCoreApplication.translate("MainWindow", u"Remove Zeros", None))
-        self.btn_removeAll.setText(QCoreApplication.translate("MainWindow", u"Remove All", None))
-        self.btn_Remove.setText(QCoreApplication.translate("MainWindow", u"Remove", None))
+        self.btn_Swapping.setText(QCoreApplication.translate("MainWindow", u"Swap", None))
+        self.btn_removePoles.setText(QCoreApplication.translate("MainWindow", u"Del Pole", None))
+        self.btn_RemoveZeros.setText(QCoreApplication.translate("MainWindow", u"Del Zero", None))
+        self.btn_removeAll.setText(QCoreApplication.translate("MainWindow", u"Del All", None))
+        self.btn_Remove_all_zeros.setText(QCoreApplication.translate("MainWindow", u"Del Zeros", None))
+        self.btn_Remove_all_poles.setText(QCoreApplication.translate("MainWindow", u"Del Poles", None))
         self.pair_mode_toggle.setText(QCoreApplication.translate("MainWindow", u"Pair Mode", None))
         self.mouse_en.setText(QCoreApplication.translate("MainWindow", u"Mouse Enable", None))
         self.btn_Import_Zero_Pole.setText(QCoreApplication.translate("MainWindow", u"Import", None))
@@ -693,7 +702,6 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(shortcut)
     # retranslateUi
 
-
 if __name__ == "__main__":
         import sys
         app = QApplication(sys.argv)
@@ -702,3 +710,6 @@ if __name__ == "__main__":
         ui.setupUi(MainWindow)
         MainWindow.show()
         sys.exit(app.exec())
+        
+        
+        

@@ -168,7 +168,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Plot magnitude response
         magnitude = 20 * np.log10(abs(h))
         self.plot_magResponse.clear()
-        self.plot_magResponse.plot(w, abs(h), pen='b')
+        self.plot_magResponse.plot(w, magnitude, pen='b')
         self.plot_magResponse.setLabel('left', 'Magnitude (dB)')
         self.plot_magResponse.setLabel('bottom', 'Frequency [rad/sample]')
 

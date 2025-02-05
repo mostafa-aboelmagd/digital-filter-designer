@@ -24,6 +24,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pole_mode = False
         self.zeros = []  # contains tuples of coordinates of the zeroes we have.
         self.poles = []
+        self.conjugate_zeros = []
+        self.conjugate_poles = []
         self.history = []  # a list that contains tuples, each tuple contains a list of zeroes and a list of poles at a certain time. It's updated with each plot update.
         self.current_history_index = -1  # it points at the tuple which contains the current zeroes and poles lists 
         self.data_position = None  # a tuple that contains the coordinates of the last left clicked area in the unit circle plot
@@ -61,6 +63,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_Remove_all_poles.clicked.connect(self.removeAllPoles)
         self.plot_unitCircle.scene().sigMouseClicked.connect(self.addZeroOrPole)
         self.plot_unitCircle.scene().sigMouseClicked.connect(self.storeClickedPosition)
+        self.pair_mode_toggle.clicked.connect(self.update_plot)
         
         
     
@@ -139,14 +142,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def update_plot(self):
         self.plot_unitCircle.clear()
         self.drawUnitCircle()
+        # plot zeroes and poles
         for zero in self.zeros:
             self.plot_unitCircle.plot([zero[0]], [zero[1]], pen=None, symbol='o', symbolBrush='r')
         for pole in self.poles:
             self.plot_unitCircle.plot([pole[0]], [pole[1]], pen=None, symbol='x', symbolBrush='b')
-
+        
+        # add and plot conjugates if its checkbox is checked
+        if self.pair_mode_toggle.isChecked():
+            self.addConjugatePairs()
+            for conjugate_pole in self.conjugate_poles:
+                self.plot_unitCircle.plot([conjugate_pole[0]], [conjugate_pole[1]], pen=None, symbol='x', symbolBrush='b')
+            for conjugate_zero in self.conjugate_zeros:
+                self.plot_unitCircle.plot([conjugate_zero[0]], [conjugate_zero[1]], pen=None, symbol='o', symbolBrush='r')
+                
         # Calculate and plot the magnitude and phase response
         self.plot_frequency_response()
 
+    def addConjugatePairs(self):
+        self.conjugate_poles.clear()
+        self.conjugate_zeros.clear()
+        for pole in self.poles:
+            self.conjugate_poles.append((pole[0], - pole[1]))
+        for zero in self.zeros:
+            self.conjugate_zeros.append((zero[0], - zero[1]))
+        
     def plot_frequency_response(self):
         if not self.zeros and not self.poles:
             self.plot_magResponse.clear()
@@ -180,7 +200,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plot_phaseResponse.setLabel('bottom', 'Frequency [rad/sample]')
 
     def save_state(self):
-        if self.current_history_index < len(self.history) - 1:
+        if self.current_history_index < len(self.history) - 1:   # this condition can be satisfied after undoing, when we decrement the curr_history_idx
             self.history = self.history[:self.current_history_index + 1]
         self.history.append((self.zeros.copy(), self.poles.copy()))
         self.current_history_index += 1
@@ -198,7 +218,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.update_plot()
 
     
-            
+        
+    
+                
             
 
 if __name__ == '__main__':

@@ -64,6 +64,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plot_unitCircle.scene().sigMouseClicked.connect(self.addZeroOrPole)
         self.plot_unitCircle.scene().sigMouseClicked.connect(self.storeClickedPosition)
         self.pair_mode_toggle.clicked.connect(self.update_plot)
+
+        self.btn_addCoeff.clicked.connect(self.add_coefficient)
+        self.btn_removeCoeff.clicked.connect(self.remove_coefficient)
         
         
     
@@ -223,7 +226,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     
         
-    
+    def add_coefficient(self):
+        # Create a QTableWidgetItem
+        coeff_item = QTableWidgetItem(self.comboBox.currentText())
+        coeff_item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+        coeff_item.setCheckState(Qt.CheckState.Checked)
+        
+        # Insert the item into the table widget
+        self.table_coeff.insertRow(self.table_coeff.rowCount())
+        self.table_coeff.setItem(self.table_coeff.rowCount()-1, 0, coeff_item)
+        
+        
+    # Removes the selected row from the table widget
+    def remove_coefficient(self):
+        self.table_coeff.removeRow(self.table_coeff.currentRow()) 
+     
                 
             
 

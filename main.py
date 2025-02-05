@@ -36,7 +36,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for view, title in zip(self.viewports, self.plotTitles):
             self.customize_plot(view, title)
 
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()

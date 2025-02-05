@@ -64,7 +64,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plot_unitCircle.scene().sigMouseClicked.connect(self.addZeroOrPole)
         self.plot_unitCircle.scene().sigMouseClicked.connect(self.storeClickedPosition)
         self.pair_mode_toggle.clicked.connect(self.update_plot)
-
+        self.btn_addCoeff.clicked.connect(self.add_coefficient)
+        self.btn_removeCoeff.clicked.connect(self.remove_coefficient)
+        
+        
+    
+    
     def drawUnitCircle(self):
         theta = np.linspace(0, 100, 1000)
         self.plot_unitCircle.plot(np.cos(theta), np.sin(theta), pen='w')
@@ -223,6 +228,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.zeros, self.poles = self.history[self.current_history_index]
             self.update_plot()
 
+
     # Event Filter to enable dragging of zeros/poles 
     def eventFilter(self, source, event):
         if source is self.plot_unitCircle.scene():
@@ -259,7 +265,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.poles[self.dragging_item['index']] = new_point
                     self.update_plot()
                     return True
-                
+                  
             # Process mouse release: finish dragging.
             elif event.type() == QEvent.GraphicsSceneMouseRelease:
                 if self.dragging_item is not None:
@@ -268,6 +274,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     return True
         # For all other events, use the default processing.
         return super().eventFilter(source, event)
+
+    
+        
+    def add_coefficient(self):
+        # Create a QTableWidgetItem
+        coeff_item = QTableWidgetItem(self.comboBox.currentText())
+        coeff_item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+        coeff_item.setCheckState(Qt.CheckState.Checked)
+        
+        # Insert the item into the table widget
+        self.table_coeff.insertRow(self.table_coeff.rowCount())
+        self.table_coeff.setItem(self.table_coeff.rowCount()-1, 0, coeff_item)
+        
+        
+    # Removes the selected row from the table widget
+    def remove_coefficient(self):
+        self.table_coeff.removeRow(self.table_coeff.currentRow()) 
+     
+
+                
+            
 
 
 

@@ -589,10 +589,8 @@ class Ui_MainWindow(object):
         self.gridLayout_4.addWidget(self.grpbx_RealtimeFiltering, 1, 0, 1, 2)
 
         MainWindow.setCentralWidget(self.centralwidget)
-#if QT_CONFIG(shortcut)
         self.label.setBuddy(self.wgt_coefficient)
         self.lbl_speed.setBuddy(self.speed_slider)
-#endif // QT_CONFIG(shortcut)
 
         self.retranslateUi(MainWindow)
 
@@ -659,13 +657,9 @@ class Ui_MainWindow(object):
         self.pair_mode_toggle.setText(QCoreApplication.translate("MainWindow", u"Pair Mode", None))
         self.mouse_en.setText(QCoreApplication.translate("MainWindow", u"Mouse Enable", None))
         self.btn_Import_Zero_Pole.setText(QCoreApplication.translate("MainWindow", u"Import", None))
-#if QT_CONFIG(shortcut)
         self.btn_Import_Zero_Pole.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+O", None))
-#endif // QT_CONFIG(shortcut)
         self.btn_Export_Zero_Pole.setText(QCoreApplication.translate("MainWindow", u"Export", None))
-#if QT_CONFIG(shortcut)
         self.btn_Export_Zero_Pole.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+O", None))
-#endif // QT_CONFIG(shortcut)
         self.grpbx_AllPassFilter.setTitle(QCoreApplication.translate("MainWindow", u"All Pass Filter Design", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"All Pass Filters", None))
         self.all_pass_enable.setText(QCoreApplication.translate("MainWindow", u"All Pass", None))
@@ -683,16 +677,10 @@ class Ui_MainWindow(object):
         self.grpbx_RealtimeFiltering.setTitle(QCoreApplication.translate("MainWindow", u"Realtime Filtering", None))
         self.btnClr.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
         self.btn_openFile.setText(QCoreApplication.translate("MainWindow", u"Choose File", None))
-#if QT_CONFIG(shortcut)
         self.btn_openFile.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+O", None))
-#endif // QT_CONFIG(shortcut)
-        self.lbl_speed.setText(QCoreApplication.translate("MainWindow", u"Speed: 1", None))
+        self.lbl_speed.setText(QCoreApplication.translate("MainWindow", u"Speed: 1 Point/Second", None))
         self.btn_play.setText(QCoreApplication.translate("MainWindow", u"Play", None))
-#if QT_CONFIG(shortcut)
         self.btn_play.setShortcut(QCoreApplication.translate("MainWindow", u"Space", None))
-#endif // QT_CONFIG(shortcut)
-    # retranslateUi
-
 
 if __name__ == "__main__":
         import sys

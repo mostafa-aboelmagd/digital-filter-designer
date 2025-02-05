@@ -3,6 +3,25 @@ import scipy.signal as signal
 import matplotlib.pyplot as plt
 from typing import Optional, Tuple, Union
 
+
+"""     self.lib_combobox.setItemText(0,"butterworth")
+        self.lib_combobox.setItemText(1,"chebyshev1")
+        self.lib_combobox.setItemText(2,"chebyshev2")
+        self.lib_combobox.setItemText(3,"bessel")
+        self.lib_combobox.setItemText(4,"elliptic")
+        self.lib_combobox.setItemText(5,"fir")
+        self.lib_combobox.setItemText(6,"gaussian")
+        self.lib_combobox.setItemText(7,"median")
+        self.lib_combobox.setItemText(8,"Savitzky-Golay")
+        self.lib_combobox.setItemText(9,"butterworth")
+    
+"""
+
+"""
+    self.type_combobox.setItemText(0,"lowpass")
+    self.type_combobox.setItemText(1,"highpass")
+    self.type_combobox.setItemText(2,"bandpass")
+"""
 class FilterDesigner:
     @staticmethod
     def design_iir(
@@ -139,6 +158,7 @@ if __name__ == "__main__":
 
     # 2. FIR Highpass
     b_fir, a_fir = FilterDesigner.design_fir('highpass', 65, 20, fs=fs)
+    plot_response(b_fir, a_fir,fs= fs)
     filtered_fir = FilterApplier.apply_iir_fir(b_fir, a_fir, sig)
     # 3. Gaussian Filter
     b_gauss, a_gauss = FilterDesigner.design_gaussian(31, 10, fs=fs)

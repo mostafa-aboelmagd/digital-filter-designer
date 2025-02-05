@@ -176,6 +176,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Convert poles and zeros to transfer function
         zeros = [complex(z[0], z[1]) for z in self.zeros]  # putting the zeroes coordinates in the form of complex numbers
         poles = [complex(p[0], p[1]) for p in self.poles]  # same for poles
+        # append conjugates if their checkbox is checked
+        if self.pair_mode_toggle.isChecked():
+            zeros += [complex(cz[0], cz[1]) for cz in self.conjugate_zeros]
+            poles += [complex(cp[0], cp[1]) for cp in self.conjugate_poles]
        
         b, a = zpk2tf(zeros, poles, 1)  # b: array containing the numrator cooffs of the transfer fn in z domain (b0, b1, b2, ...)
                                         # a: array containing the denomenator cooffs (a0, a1, a2, ...)

@@ -27,7 +27,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.conjugate_zeros = []
         self.conjugate_poles = []
         self.history = []  # history of (zeros, poles) states for undo/redo
-        self.current_history_index = -1  # index for current state in history
+        self.current_history_index = 0  # index for current state in history
         self.data_position = None  # last left-clicked position (used for removal)
         self.dragging_item = None  # used for dragging; stores dict with 'type', 'index', and 'offset'
         
@@ -40,6 +40,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def init_UI(self):
         for view, title in zip(self.viewports, self.plotTitles):
             self.customize_plot(view, title)
+        self.history = [(self.zeros.copy(), self.poles.copy())] 
         self.drawUnitCircle()
         self.connect_signals()
         # Install event filter on the unit circle's scene to enable dragging of markers.
@@ -62,7 +63,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_Remove_all_zeros.clicked.connect(self.removeAllZeros)
         self.btn_Remove_all_poles.clicked.connect(self.removeAllPoles)
         self.plot_unitCircle.scene().sigMouseClicked.connect(self.addZeroOrPole)
-        self.plot_unitCircle.scene().sigMouseClicked.connect(self.storeClickedPosition)
         self.pair_mode_toggle.clicked.connect(self.update_plot)
         self.btn_addCoeff.clicked.connect(self.add_coefficient)
         self.btn_removeCoeff.clicked.connect(self.remove_coefficient)
@@ -95,14 +95,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.update_plot()  # refresh the plots with new markers
             self.save_state()
 
-    def storeClickedPosition(self, event):
-        # This slot saves the data position on a left click if not dragging.
-        if event.button() == Qt.LeftButton:
-            # Only store if we are not currently dragging an item.
-            if self.dragging_item is None:
-                pos = event.scenePos()
-                data_pos = self.plot_unitCircle.getViewBox().mapSceneToView(pos)
-                self.data_position = (data_pos.x(), data_pos.y())
 
     def removePole(self):
         # Remove a pole if its coordinates are close to the last left-clicked position.
@@ -118,6 +110,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def removeZero(self):
         # Remove a zero if its coordinates are close to the last left-clicked position.
         if self.data_position is None:
+            print("data position is none")
             return
         for zero in self.zeros:
             if round(zero[0], 1) == round(self.data_position[0], 1) and round(zero[1], 1) == round(self.data_position[1], 1):
@@ -208,18 +201,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
         if self.current_history_index < len(self.history) - 1:
             self.history = self.history[:self.current_history_index + 1]
-        self.history.append((self.zeros.copy(), self.poles.copy()))
-        self.current_history_index += 1
+        # Save new state
+        new_state = (self.zeros.copy(), self.poles.copy())
+        # Only save if different from current state
+        if new_state != self.history[self.current_history_index]:
+            self.history.append(new_state)
+            self.current_history_index += 1
 
     def undo(self):
         if self.current_history_index > 0:
             self.current_history_index -= 1
             self.zeros, self.poles = self.history[self.current_history_index]
-            self.update_plot()
-        elif self.current_history_index == 0:
-            self.poles.clear()
-            self.zeros.clear()
-            self.current_history_index -=1
             self.update_plot()
 
     def redo(self):
@@ -237,6 +229,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 if event.button() == Qt.LeftButton:
                     pos = event.scenePos()
                     data_pos = self.plot_unitCircle.getViewBox().mapSceneToView(pos)
+                    self.data_position = (data_pos.x(), data_pos.y())
                     threshold = 0.05  # threshold in data coordinates for selecting a marker
                     # Check zeros first.
                     for idx, zero in enumerate(self.zeros):

@@ -93,8 +93,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.filteredSignal = np.real(lfilter(self.b, self.a, self.browsedSignal))
                 self.speed_slider.setEnabled(True)  # Enable the start button
                 self.startPlotting()
-                #yLimit = max(np.abs(self.browsedSignal))
-                #signalFreq = self.calculate_frequency(self.browsedSignal, yLimit - 0.3)
                 
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to read CSV: {str(e)}")
@@ -130,22 +128,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Update the plot with new data
         self.curve.setData(self.time[:self.index], self.browsedSignal[:self.index])
         self.filterCurve.setData(self.time[:self.index], self.filteredSignal[:self.index])
-
-    def calculate_frequency(self, signal, threshold):
-        peaks = []
-        for i in range(len(signal)):
-            if i > 0 and i < len(signal) - 1:
-                if signal[i] > signal[i - 1] and signal[i] > signal[i + 1] and signal[i] > threshold:
-                    peaks.append(i)
-
-        currSignalTime = np.linspace(0, 1, 1000)
-        cycleTimes = []
-        for i in range(len(peaks) - 1, 0, -1):
-            cycleTimes.append(currSignalTime[peaks[i]] - currSignalTime[peaks[i - 1]])
-        
-        periodicTime = np.average(cycleTimes)
-
-        return round(1 / periodicTime)
 
     def updateFilterSpeed(self):
         self.speed = self.speed_slider.value()

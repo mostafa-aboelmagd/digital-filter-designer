@@ -30,6 +30,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.current_history_index = -1  # index for current state in history
         self.data_position = None  # last left-clicked position (used for removal)
         self.dragging_item = None  # used for dragging; stores dict with 'type', 'index', and 'offset'
+        self.all_pass_a = 1
+        self.allpass_en = False
+        self.checked_coeffs = [0.0]
+        self.colors = ['#FF0000', '#FFA500', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#800080', '#FF00FF', '#FF1493', '#00FF7F', '#FFD700', '#FF6347', '#48D1CC', '#8A2BE2', '#20B2AA']
         
         self.viewports = [self.plot_unitCircle, self.plot_magResponse, self.plot_phaseResponse,
                           self.plot_allPass, self.plot_realtimeInput, self.plot_realtimeFilter, self.plot_mouseInput]
@@ -66,6 +70,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pair_mode_toggle.clicked.connect(self.update_plot)
         self.btn_addCoeff.clicked.connect(self.add_coefficient)
         self.btn_removeCoeff.clicked.connect(self.remove_coefficient)
+        self.table_coeff.itemChanged.connect(self.update_plot_allpass)
+        self.all_pass_enable.stateChanged.connect(self.toggle_all_pass)
         
         
     
@@ -204,6 +210,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plot_phaseResponse.setLabel('left', 'Phase (radians)')
         self.plot_phaseResponse.setLabel('bottom', 'Frequency [rad/sample]')
 
+        # Plot all-pass filter phase response if enabled
+        if self.allpass_en:
+            _, _, z_allpass, p_allpass = self.get_all_pass_filter()
+            w, h = freqz(np.poly(z_allpass), np.poly(p_allpass))
+            phase_allpass = self.fix_phase(h)
+            self.plot_phaseResponse.plot(w, phase_allpass, pen='y', name='AllPass Phase Response')
+            self.plot_phaseResponse.addLegend()
+
     def save_state(self):
     
         if self.current_history_index < len(self.history) - 1:
@@ -292,11 +306,81 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def remove_coefficient(self):
         self.table_coeff.removeRow(self.table_coeff.currentRow()) 
      
+    def get_all_pass_filter(self):
+        self.checked_coeffs = [0.0] # List to hold the selected coefficient values
+        
+        for row in range(self.table_coeff.rowCount()):
+            item = self.table_coeff.item(row, 0) 
+            if item.checkState() == Qt.CheckState.Checked:
+                self.checked_coeffs.append(float(item.text()))  
+        
+        if not self.allpass_en:
+            self.checked_coeffs = [0.0]
 
-                
+        self.all_pass_zeros = self.zeros.copy()
+        self.all_pass_poles = self.poles.copy()
+
+        w, all_pass_phs = 0, 0
+        self.plot_allPass.clear()
+
+        for i in range(len(self.checked_coeffs)):
+            a = self.checked_coeffs[i]
+
+            if a ==1:
+                a= 0.99999999
+            a = complex(a, 0)
             
+            # Check if denominator is not zero before performing division
+            if np.abs(a) > 0:
+                a_conj = 1 / np.conj(a)
 
+                w, h = freqz([-np.conj(a), 1.0], [1.0, -a])
+                all_pass_phs = np.add(np.angle(h), all_pass_phs)
+                self.plot_allPass.plot(w, np.angle(h), pen=self.colors[i % len(self.colors)], name = f'All pass{a.real}')
+                self.plot_allPass.setLabel('left', 'All Pass Phase', units='degrees')
+                
+                # Add points to lists
+                self.all_pass_poles.append((a.real, a.imag))
+                self.all_pass_zeros.append((a_conj.real, a_conj.imag))
+        
+        self.plot_unitCircle.clear()
+        self.drawUnitCircle()
+        for zero in self.all_pass_zeros:
+            self.plot_unitCircle.plot([zero[0]], [zero[1]], pen=None, symbol='o', symbolBrush='r')
+        for pole in self.all_pass_poles:
+            self.plot_unitCircle.plot([pole[0]], [pole[1]], pen=None, symbol='x', symbolBrush='b')
 
+        if len(self.checked_coeffs) > 1:
+            self.plot_allPass.plot(w, all_pass_phs, pen=self.colors[-1], name = 'All pass Total')
+        self.plot_allPass.addLegend()
+
+        # Combine zeros and poles
+        z_allpass = np.array([complex(z[0], z[1]) for z in self.all_pass_zeros])
+        p_allpass = np.array([complex(p[0], p[1]) for p in self.all_pass_poles])
+
+        z = np.array([complex(z[0], z[1]) for z in self.zeros])
+        p = np.array([complex(p[0], p[1]) for p in self.poles])
+
+        return z, p, z_allpass, p_allpass
+
+    def update_plot_allpass(self):
+        self.update_plot()
+        _, _, z, p = self.get_all_pass_filter()
+        # Calculate frequency response
+        w, h = freqz(np.poly(z), np.poly(p))
+        self.phase_response = self.fix_phase(h)
+
+    def fix_phase(self, h):
+        phase_response_deg = np.rad2deg(np.angle(h))
+        phase_response_constrained  = np.where(phase_response_deg < 0, phase_response_deg + 360, phase_response_deg)
+        phase_response_constrained  = np.where(phase_response_constrained  > 180, phase_response_constrained  - 360, phase_response_constrained )
+        
+        return phase_response_constrained 
+
+    def toggle_all_pass(self):
+        self.allpass_en = not self.allpass_en
+        self.update_plot_allpass()
+        self.update_plot()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

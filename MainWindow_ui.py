@@ -17,12 +17,13 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QButtonGroup, QCheckBox,
-    QComboBox, QGridLayout, QGroupBox, QHeaderView,
+    QComboBox, QDoubleSpinBox, QGridLayout, QGroupBox, QHeaderView,
     QLabel, QMainWindow, QPushButton, QSizePolicy,
     QSlider, QTableWidget, QTableWidgetItem, QVBoxLayout,
     QWidget)
 
 from pyqtgraph import PlotWidget
+import numpy as np
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -75,21 +76,19 @@ class Ui_MainWindow(object):
         background: #132F4C;
     }
     
-    QComboBox {
-        background: #000000;
-        border: 2px solid #3399FF;
-        border-radius: 4px;
-        padding: 5px;
-        color: #3399FF;
-    }
+    # QComboBox {
+    #     background: #000000;
+    #     border: 2px solid #3399FF;
+    #     border-radius: 4px;
+    #     padding: 5px;
+    #     color: #3399FF;
+    # }
     
     QComboBox:hover {
         border-color: #66B2FF;
     }
     
-    QComboBox::drop-down {
-        border: none;
-    }
+  
     
     QComboBox::down-arrow {
         image: url(down_arrow.png);
@@ -153,128 +152,7 @@ class Ui_MainWindow(object):
     }
 """)
         
-    #     MainWindow.setStyleSheet("""
-    #     #centralwidget {
-    #         background: #0A1929;
-    #     }
-        
-    #     QWidget {
-    #         background: #132F4C;
-    #         color: #E7EBF0;
-    #         font-family: 'Segoe UI', sans-serif;
-    #     }
-        
-    #     QGroupBox {
-    #         background: #0A1929;
-    #         border: 2px solid #3399FF;
-    #         border-radius: 8px;
-    #         margin-top: 1em;
-    #         font-size: 14px;
-    #         font-weight: bold;
-    #     }
-        
-    #     QGroupBox::title {
-    #         color: #66B2FF;
-    #         subcontrol-origin: margin;
-    #         subcontrol-position: top center;
-    #         padding: 0 5px;
-    #     }
-        
-    #     QPushButton {
-    #         background: #1E4976;
-    #         border: 2px solid #3399FF;
-    #         border-radius: 4px;
-    #         padding: 5px 15px;
-    #         color: #E7EBF0;
-    #         font-weight: bold;
-    #     }
-        
-    #     QPushButton:hover {
-    #         background: #265D97;
-    #         border-color: #66B2FF;
-    #     }
-        
-    #     QPushButton:pressed {
-    #         background: #132F4C;
-    #     }
-        
-    #     QComboBox {
-    #         background: #1E4976;
-    #         border: 2px solid #3399FF;
-    #         border-radius: 4px;
-    #         padding: 5px;
-    #         color: #E7EBF0;
-    #     }
-        
-    #     QComboBox:hover {
-    #         border-color: #66B2FF;
-    #     }
-        
-    #     QComboBox::drop-down {
-    #         border: none;
-    #     }
-        
-    #     QComboBox::down-arrow {
-    #         image: url(down_arrow.png);
-    #         width: 12px;
-    #         height: 12px;
-    #     }
-        
-    #     QSlider::groove:horizontal {
-    #         border: 1px solid #3399FF;
-    #         height: 8px;
-    #         background: #1E4976;
-    #         margin: 2px 0;
-    #         border-radius: 4px;
-    #     }
-        
-    #     QSlider::handle:horizontal {
-    #         background: #3399FF;
-    #         border: 1px solid #3399FF;
-    #         width: 18px;
-    #         margin: -6px 0;
-    #         border-radius: 9px;
-    #     }
-        
-    #     QSlider::handle:horizontal:hover {
-    #         background: #66B2FF;
-    #         border-color: #66B2FF;
-    #     }
-        
-    #     QCheckBox {
-    #         spacing: 8px;
-    #     }
-        
-    #     QCheckBox::indicator {
-    #         width: 18px;
-    #         height: 18px;
-    #     }
-        
-    #     QCheckBox::indicator:unchecked {
-    #         border: 2px solid #3399FF;
-    #         border-radius: 4px;
-    #         background: #1E4976;
-    #     }
-        
-    #     QCheckBox::indicator:checked {
-    #         border: 2px solid #3399FF;
-    #         border-radius: 4px;
-    #         background: #3399FF;
-    #     }
-        
-    #     PlotWidget {
-    #         border: 2px solid #3399FF;
-    #         border-radius: 8px;
-    #         background: #132F4C;
-    #     }
-        
-    #     QTableWidget {
-    #         gridline-color: #3399FF;
-    #         border: 2px solid #3399FF;
-    #         border-radius: 4px;
-    #         selection-background-color: #1E4976;
-    #     }
-    # """)
+
         self.actionImport = QAction(MainWindow)
         self.actionImport.setObjectName(u"actionImport")
         self.actionExport = QAction(MainWindow)
@@ -330,11 +208,49 @@ class Ui_MainWindow(object):
 
         self.gridLayout_5.addWidget(self.btn_Undo, 2, 0, 1, 1)
 
+
         self.btn_Redo = QPushButton(self.wgt_unitCircle)
         self.btn_Redo.setObjectName(u"btn_Redo")
         self.btn_Redo.setMaximumSize(QSize(100, 16777215))
 
         self.gridLayout_5.addWidget(self.btn_Redo, 3, 0, 1, 1)
+       
+        self.type_combobox = QComboBox(self.wgt_unitCircle)
+        self.type_combobox.addItem("lowpass")
+        self.type_combobox.addItem("highpass")
+        self.type_combobox.addItem("bandpass")
+        self.type_combobox.setObjectName(u"type_combobox")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        sizePolicy2.setHeightForWidth(self.type_combobox.sizePolicy().hasHeightForWidth())
+        self.type_combobox.setSizePolicy(sizePolicy2)
+        self.type_combobox.setStyleSheet(u"background:white;\n"
+                                         "color:black;\n")
+        self.type_combobox.setEditable(True)
+
+        self.gridLayout_5.addWidget(self.type_combobox, 2, 1, 1, 1)
+
+        self.lib_combobox = QComboBox(self.wgt_unitCircle)
+        self.lib_combobox.addItem("butterworth")
+        self.lib_combobox.addItem("chebyshev1")
+        self.lib_combobox.addItem("chebyshev2")
+        self.lib_combobox.addItem("bessel")
+        self.lib_combobox.addItem("elliptic")
+        self.lib_combobox.addItem("fir")
+        self.lib_combobox.addItem("gaussian")
+        self.lib_combobox.addItem("median")
+        self.lib_combobox.addItem("savitzky-Golay")
+        self.lib_combobox.setObjectName(u"lib_combobox")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        sizePolicy2.setHeightForWidth(self.lib_combobox.sizePolicy().hasHeightForWidth())
+        self.lib_combobox.setSizePolicy(sizePolicy2)
+        self.lib_combobox.setStyleSheet(u"background:white;\n"
+                                        "color:black;\n")
+        self.lib_combobox.setEditable(True)
+
+        self.gridLayout_5.addWidget(self.lib_combobox, 3, 1, 1, 1)
+
+
+        
 
         self.wgt_buttons = QWidget(self.wgt_unitCircle)
         self.wgt_buttons.setObjectName(u"wgt_buttons")
@@ -392,12 +308,19 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.btn_removeAll)
 
-        self.btn_Remove = QPushButton(self.wgt_buttons)
-        self.btngrp_zerosPoles.addButton(self.btn_Remove)
-        self.btn_Remove.setObjectName(u"btn_Remove")
-        self.btn_Remove.setMaximumSize(QSize(100, 16777215))
+        self.btn_Remove_all_zeros = QPushButton(self.wgt_buttons)
+        self.btngrp_zerosPoles.addButton(self.btn_Remove_all_zeros)
+        self.btn_Remove_all_zeros.setObjectName(u"btn_Remove_all_zeros")
+        self.btn_Remove_all_zeros.setMaximumSize(QSize(100, 16777215))
 
-        self.verticalLayout_3.addWidget(self.btn_Remove)
+        self.verticalLayout_3.addWidget(self.btn_Remove_all_zeros)
+        
+        self.btn_Remove_all_poles = QPushButton(self.wgt_buttons)
+        self.btngrp_zerosPoles.addButton(self.btn_Remove_all_poles)
+        self.btn_Remove_all_poles.setObjectName(u"btn_Remove_all_poles")
+        self.btn_Remove_all_poles.setMaximumSize(QSize(100, 16777215))
+
+        self.verticalLayout_3.addWidget(self.btn_Remove_all_poles)
 
         self.pair_mode_toggle = QCheckBox(self.wgt_buttons)
         self.pair_mode_toggle.setObjectName(u"pair_mode_toggle")
@@ -479,6 +402,7 @@ class Ui_MainWindow(object):
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.all_pass_enable = QCheckBox(self.wgt_coefficient)
         self.all_pass_enable.setObjectName(u"all_pass_enable")
+        self.all_pass_enable.setStyleSheet("font-size: 20")
 
         self.gridLayout_6.addWidget(self.all_pass_enable, 1, 0, 1, 2)
 
@@ -520,6 +444,19 @@ class Ui_MainWindow(object):
 
         self.gridLayout_6.addWidget(self.comboBox, 0, 1, 1, 3)
 
+        # Add theta input
+        self.theta_label = QLabel(self.wgt_coefficient)
+        self.theta_label.setObjectName(u"theta_label")
+        self.theta_label.setText("Theta")
+        self.gridLayout_6.addWidget(self.theta_label, 2, 0, 1, 1)
+
+        self.theta_slider = QSlider(self.wgt_coefficient)
+        self.theta_slider.setObjectName(u"theta_slider")
+        self.theta_slider.setOrientation(Qt.Horizontal)
+        self.theta_slider.setRange(0, 360)
+        self.theta_slider.setSingleStep(1)
+        self.theta_slider.setStyleSheet("font-size: 16px;")
+        self.gridLayout_6.addWidget(self.theta_slider, 2, 1, 1, 3)
 
         self.gridLayout_3.addWidget(self.wgt_coefficient, 0, 0, 1, 1)
 
@@ -599,6 +536,7 @@ class Ui_MainWindow(object):
         self.plot_mouseInput.setBackground('#132F4C')
         self.plot_realtimeInput.setBackground('#132F4C')
         
+        
         # Add tooltips
         self.btn_addPoles.setToolTip("Add a pole to the filter design")
         self.btn_addZeros.setToolTip("Add a zero to the filter design")
@@ -635,6 +573,15 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
+        self.lib_combobox.setItemText(0, QCoreApplication.translate("MainWindow", u"butterworth", None))
+        self.lib_combobox.setItemText(1, QCoreApplication.translate("MainWindow", u"chebyshev1", None))
+        self.lib_combobox.setItemText(2, QCoreApplication.translate("MainWindow", u"chebyshev2", None))
+        self.lib_combobox.setItemText(3, QCoreApplication.translate("MainWindow", u"bessel", None))
+        self.lib_combobox.setItemText(4, QCoreApplication.translate("MainWindow", u"elliptic", None))
+        self.lib_combobox.setItemText(5, QCoreApplication.translate("MainWindow", u"fir", None))
+        self.lib_combobox.setItemText(6, QCoreApplication.translate("MainWindow", u"gaussian", None))
+        self.lib_combobox.setItemText(7, QCoreApplication.translate("MainWindow", u"median", None))
+        self.lib_combobox.setItemText(8, QCoreApplication.translate("MainWindow", u"savitzky-Golay", None))
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.actionImport.setText(QCoreApplication.translate("MainWindow", u"Import Zeros/Poles", None))
         self.actionExport.setText(QCoreApplication.translate("MainWindow", u"Export Zeros/Poles", None))
@@ -643,11 +590,12 @@ class Ui_MainWindow(object):
         self.btn_Redo.setText(QCoreApplication.translate("MainWindow", u"Redo", None))
         self.btn_addPoles.setText(QCoreApplication.translate("MainWindow", u"Add Pole", None))
         self.btn_addZeros.setText(QCoreApplication.translate("MainWindow", u"Add Zero", None))
-        self.btn_Swapping.setText(QCoreApplication.translate("MainWindow", u"Swapping", None))
-        self.btn_removePoles.setText(QCoreApplication.translate("MainWindow", u"Remove Poles", None))
-        self.btn_RemoveZeros.setText(QCoreApplication.translate("MainWindow", u"Remove Zeros", None))
-        self.btn_removeAll.setText(QCoreApplication.translate("MainWindow", u"Remove All", None))
-        self.btn_Remove.setText(QCoreApplication.translate("MainWindow", u"Remove", None))
+        self.btn_Swapping.setText(QCoreApplication.translate("MainWindow", u"Swap", None))
+        self.btn_removePoles.setText(QCoreApplication.translate("MainWindow", u"Del Pole", None))
+        self.btn_RemoveZeros.setText(QCoreApplication.translate("MainWindow", u"Del Zero", None))
+        self.btn_removeAll.setText(QCoreApplication.translate("MainWindow", u"Del All", None))
+        self.btn_Remove_all_zeros.setText(QCoreApplication.translate("MainWindow", u"Del Zeros", None))
+        self.btn_Remove_all_poles.setText(QCoreApplication.translate("MainWindow", u"Del Poles", None))
         self.pair_mode_toggle.setText(QCoreApplication.translate("MainWindow", u"Pair Mode", None))
         self.mouse_en.setText(QCoreApplication.translate("MainWindow", u"Mouse Enable", None))
         self.btn_Import_Zero_Pole.setText(QCoreApplication.translate("MainWindow", u"Import", None))
@@ -667,13 +615,15 @@ class Ui_MainWindow(object):
         self.comboBox.setItemText(4, QCoreApplication.translate("MainWindow", u"0.495", None))
         self.comboBox.setItemText(5, QCoreApplication.translate("MainWindow", u"0.9", None))
         self.comboBox.setItemText(6, QCoreApplication.translate("MainWindow", u"1", None))
+        self.type_combobox.setItemText(0, QCoreApplication.translate("MainWindow", u"lowpass", None))
+        self.type_combobox.setItemText(1, QCoreApplication.translate("MainWindow", u"highpass", None))
+        self.type_combobox.setItemText(2, QCoreApplication.translate("MainWindow", u"bandpass", None))
 
         self.grpbx_RealtimeFiltering.setTitle(QCoreApplication.translate("MainWindow", u"Realtime Filtering", None))
         self.btnClr.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
         self.btn_openFile.setText(QCoreApplication.translate("MainWindow", u"Choose File", None))
         self.btn_openFile.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+O", None))
         self.lbl_speed.setText(QCoreApplication.translate("MainWindow", u"Speed: 1 Point/Second", None))
-
 
 if __name__ == "__main__":
         import sys

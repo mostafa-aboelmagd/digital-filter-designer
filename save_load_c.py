@@ -7,10 +7,6 @@ import csv
 # -------------------------------
 
 def save_filter_to_csv(b, a, filename):
-    """
-    Save filter coefficients to a CSV file.
-    The first row is the b coefficients and the second row is the a coefficients.
-    """
     with open(filename, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(b)
@@ -18,10 +14,7 @@ def save_filter_to_csv(b, a, filename):
     print(f"Filter coefficients saved to {filename}")
 
 def load_filter_from_csv(filename):
-    """
-    Load filter coefficients from a CSV file.
-    Returns: b (numerator), a (denominator) as numpy arrays.
-    """
+    
     with open(filename, 'r', newline='') as csvfile:
         reader = csv.reader(csvfile)
         rows = list(reader)

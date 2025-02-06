@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, QTimer
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QTableWidget, QTableWidgetItem, QMessageBox, QFileDialog
 from scipy.signal import freqz, lfilter, zpk2tf, filtfilt
 import sys
@@ -40,13 +40,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.timer = None
         self.speed_slider.setDisabled(True)
         self.speed = 1
-        self.userInput = None
+        self.userInput = False
     
     def addEventListeners(self):
         self.btn_openFile.clicked.connect(self.browseFile)
         self.speed_slider.valueChanged.connect(self.updateFilterSpeed)
+        self.plot_mouseInput.setMouseTracking(True)
+        self.plot_mouseInput.mouseMoveEvent = self.mouseMoveEvent
         self.btnClr.clicked.connect(self.clearSignal)
-    
+
     def browseFile(self):
         filePath, _ = QFileDialog.getOpenFileName(self, "Select a CSV file", "", "CSV Files (*.csv);;All Files (*)")
         
@@ -118,6 +120,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.speed = self.speed_slider.value()
         self.lbl_speed.setText(f"Speed: {self.speed} Points/Second ")
     
+    def mouseMoveEvent(self, event):
+        if self.browsedSignal is None:
+            self.userInput = True
+            self.curve = self.plot_realtimeInput.plot([], [], pen="r")
+            self.browsedSignal = []
+            self.time = []
+            self.startTime = QtCore.QTime.currentTime().msecsSinceStartOfDay() / 1000
+
+        if self.userInput:
+            y = event.pos().y()  # Get mouse Y position
+            invertedY = self.plot_mouseInput.height() - y  # Invert Y-axis
+            currentTime = QtCore.QTime.currentTime().msecsSinceStartOfDay() / 1000 - self.startTime  # Calculate time elapsed since start
+
+            # Append new data points
+            self.time.append(currentTime)
+            self.browsedSignal.append(invertedY)
+
+            # Update the plot
+            self.curve.setData(self.time, self.browsedSignal)
+    
     def clearSignal(self):
         self.plot_realtimeInput.clear()
         self.plot_realtimeFilter.clear()
@@ -125,7 +147,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.timer.stop()
         self.speed_slider.setDisabled(True)
         self.browsedSignal = None
-        self.userInput = None
+        self.userInput = False
 
 
 if __name__ == '__main__':

@@ -53,7 +53,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             try:
                 df = pd.read_csv(filePath, header=None)
                 
-                if df.shape[1] != 10000:
+                if df.shape[1] <= 10000:
                     QMessageBox.critical(self, "Error", "Signal file must have atleast 10000 points!")
                     return
 

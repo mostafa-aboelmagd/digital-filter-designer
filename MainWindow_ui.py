@@ -579,12 +579,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout_2.addWidget(self.lbl_speed, 1, 2, 1, 1)
 
-        self.btn_play = QPushButton(self.grpbx_RealtimeFiltering)
-        self.btn_play.setObjectName(u"btn_play")
-        self.btn_play.setCheckable(False)
-
-        self.gridLayout_2.addWidget(self.btn_play, 1, 1, 1, 1)
-
 
         self.gridLayout_4.addWidget(self.grpbx_RealtimeFiltering, 1, 0, 1, 2)
 
@@ -679,8 +673,7 @@ class Ui_MainWindow(object):
         self.btn_openFile.setText(QCoreApplication.translate("MainWindow", u"Choose File", None))
         self.btn_openFile.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+O", None))
         self.lbl_speed.setText(QCoreApplication.translate("MainWindow", u"Speed: 1 Point/Second", None))
-        self.btn_play.setText(QCoreApplication.translate("MainWindow", u"Play", None))
-        self.btn_play.setShortcut(QCoreApplication.translate("MainWindow", u"Space", None))
+
 
 if __name__ == "__main__":
         import sys

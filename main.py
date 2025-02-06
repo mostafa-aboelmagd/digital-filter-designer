@@ -40,11 +40,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.timer = None
         self.speed_slider.setDisabled(True)
         self.speed = 1
-
+        self.userInput = None
     
     def addEventListeners(self):
         self.btn_openFile.clicked.connect(self.browseFile)
         self.speed_slider.valueChanged.connect(self.updateFilterSpeed)
+        self.btnClr.clicked.connect(self.clearSignal)
     
     def browseFile(self):
         filePath, _ = QFileDialog.getOpenFileName(self, "Select a CSV file", "", "CSV Files (*.csv);;All Files (*)")
@@ -116,6 +117,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def updateFilterSpeed(self):
         self.speed = self.speed_slider.value()
         self.lbl_speed.setText(f"Speed: {self.speed} Points/Second ")
+    
+    def clearSignal(self):
+        self.plot_realtimeInput.clear()
+        self.plot_realtimeFilter.clear()
+        self.index = 0
+        self.timer.stop()
+        self.speed_slider.setDisabled(True)
+        self.browsedSignal = None
+        self.userInput = None
 
 
 if __name__ == '__main__':

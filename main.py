@@ -15,7 +15,7 @@ import math
 from numpy import *
 from numpy.random import *
 from scipy.signal import *
-
+from save_load_c import *
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -64,6 +64,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plot_unitCircle.scene().sigMouseClicked.connect(self.addZeroOrPole)
         self.plot_unitCircle.scene().sigMouseClicked.connect(self.storeClickedPosition)
         self.pair_mode_toggle.clicked.connect(self.update_plot)
+        self.btn_Export_Zero_Pole.clicked.connect(self.exportZeroPole)
+        self.btn_Import_Zero_Pole.clicked.connect(self.importZeroPole)
+    
+
+    def exportZeroPole(self):
+        b, a = zpk2tf(self.zeros.extend(self.conjugate_zeros), self.poles.extend(self.conjugate_poles), 1)
+        save_filter_to_csv(b, a, "filter_coeffs.csv")
+        export_filter_to_c(b, a, "filter_direct.c", realization='direct')
+        export_filter_to_c(b, a, "filter_cascade.c", realization='cascade')
+    
+    def importZeroPole(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Open Zero-Pole File", "", "CSV Files (*.csv)")
+        if filename:
+            b, a = load_filter_from_csv(filename)
+            zeros, poles = tf2zpk(b, a)
+            self.zeros = [(z.real, z.imag) for z in zeros]
+            self.poles = [(p.real, p.imag) for p in poles]
+            self.update_plot()
+            self.save_state()
+
         
         
     

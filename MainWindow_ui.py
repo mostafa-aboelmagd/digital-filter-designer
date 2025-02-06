@@ -17,12 +17,13 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QButtonGroup, QCheckBox,
-    QComboBox, QGridLayout, QGroupBox, QHeaderView,
+    QComboBox, QDoubleSpinBox, QGridLayout, QGroupBox, QHeaderView,
     QLabel, QMainWindow, QPushButton, QSizePolicy,
     QSlider, QTableWidget, QTableWidgetItem, QVBoxLayout,
     QWidget)
 
 from pyqtgraph import PlotWidget
+import numpy as np
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -401,6 +402,7 @@ class Ui_MainWindow(object):
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.all_pass_enable = QCheckBox(self.wgt_coefficient)
         self.all_pass_enable.setObjectName(u"all_pass_enable")
+        self.all_pass_enable.setStyleSheet("font-size: 20")
 
         self.gridLayout_6.addWidget(self.all_pass_enable, 1, 0, 1, 2)
 
@@ -442,6 +444,19 @@ class Ui_MainWindow(object):
 
         self.gridLayout_6.addWidget(self.comboBox, 0, 1, 1, 3)
 
+        # Add theta input
+        self.theta_label = QLabel(self.wgt_coefficient)
+        self.theta_label.setObjectName(u"theta_label")
+        self.theta_label.setText("Theta")
+        self.gridLayout_6.addWidget(self.theta_label, 2, 0, 1, 1)
+
+        self.theta_slider = QSlider(self.wgt_coefficient)
+        self.theta_slider.setObjectName(u"theta_slider")
+        self.theta_slider.setOrientation(Qt.Horizontal)
+        self.theta_slider.setRange(0, 360)
+        self.theta_slider.setSingleStep(1)
+        self.theta_slider.setStyleSheet("font-size: 16px;")
+        self.gridLayout_6.addWidget(self.theta_slider, 2, 1, 1, 3)
 
         self.gridLayout_3.addWidget(self.wgt_coefficient, 0, 0, 1, 1)
 
@@ -627,6 +642,7 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(shortcut)
         self.btn_play.setShortcut(QCoreApplication.translate("MainWindow", u"Space", None))
 #endif // QT_CONFIG(shortcut)
+        self.theta_label.setText(QCoreApplication.translate("MainWindow", u"Theta", None))
     # retranslateUi
 
 if __name__ == "__main__":

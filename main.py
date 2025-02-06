@@ -33,6 +33,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.all_pass_a = 1
         self.allpass_en = False
         self.checked_coeffs = [0.0]
+        self.theta = 0.0
         self.colors = ['#FF0000', '#FFA500', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#800080', '#FF00FF', '#FF1493', '#00FF7F', '#FFD700', '#FF6347', '#48D1CC', '#8A2BE2', '#20B2AA']
         
         self.viewports = [self.plot_unitCircle, self.plot_magResponse, self.plot_phaseResponse,
@@ -72,6 +73,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_removeCoeff.clicked.connect(self.remove_coefficient)
         self.table_coeff.itemChanged.connect(self.update_plot_allpass)
         self.all_pass_enable.stateChanged.connect(self.toggle_all_pass)
+        self.theta_slider.valueChanged.connect(self.update_theta)
         
         
     
@@ -327,14 +329,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if np.abs(a) > 0:
                 a_conj = 1 / np.conj(a)
 
-                w, h = freqz([-np.conj(a), 1.0], [1.0, -a])
+                # Apply theta to the zero and pole
+                zero = a_conj * np.exp(1j * self.theta)
+                pole = a * np.exp(1j * self.theta)
+
+                w, h = freqz([-np.conj(zero), 1.0], [1.0, -pole])
                 all_pass_phs = np.add(np.angle(h), all_pass_phs)
                 self.plot_allPass.plot(w, np.angle(h), pen=self.colors[i % len(self.colors)], name = f'All pass{a.real}')
                 self.plot_allPass.setLabel('left', 'All Pass Phase', units='degrees')
                 
                 # Add points to lists
-                self.all_pass_poles.append((a.real, a.imag))
-                self.all_pass_zeros.append((a_conj.real, a_conj.imag))
+                self.all_pass_poles.append((pole.real, pole.imag))
+                self.all_pass_zeros.append((zero.real, zero.imag))
         
         self.plot_unitCircle.clear()
         self.drawUnitCircle()
@@ -374,6 +380,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.allpass_en = not self.allpass_en
         self.update_plot_allpass()
         self.update_plot()
+
+    def update_theta(self, value):
+        self.theta = np.deg2rad(value)
+        self.update_plot_allpass()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

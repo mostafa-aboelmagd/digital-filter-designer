@@ -63,11 +63,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for view, title in zip(self.viewports, self.plotTitles):
             self.customize_plot(view, title)
         self.browsedSignal = None
+        self.filteredSignal = None
         self.index = 0
         self.timer = None
         self.speed_slider.setDisabled(True)
         self.speed = 1
         self.userInput = False
+        self.b = None
+        self.a = None
     
     def addEventListeners(self):
         self.btn_openFile.clicked.connect(self.browseFile)
@@ -77,6 +80,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnClr.clicked.connect(self.clearSignal)
 
     def browseFile(self):
+        if not self.b or not self.a:
+            QMessageBox.critical(self, "Error", "Design Your Filter First Before Browsing A Signal!")
+            return
         filePath, _ = QFileDialog.getOpenFileName(self, "Select a CSV file", "", "CSV Files (*.csv);;All Files (*)")
         
         if filePath:
@@ -84,11 +90,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 df = pd.read_csv(filePath, header=None)
                 
                 if df.shape[1] <= 10000:
-                    QMessageBox.critical(self, "Error", "Signal file must have atleast 10000 points!")
+                    QMessageBox.critical(self, "Error", "Signal File Must Have Atleast 10000 Points!")
                     return
 
                 self.browsedSignal = df.iloc[0].values  # Get the first row as signal
                 self.time = np.arange(len(self.browsedSignal)) * 0.1  # Generate time axis (t = [0, 0.1, 0.2, ...])
+                self.filteredSignal = self.lfilter(self.b, self.a, self.browsedSignal)
                 self.speed_slider.setEnabled(True)  # Enable the start button
                 self.startPlotting()
                 #yLimit = max(np.abs(self.browsedSignal))
@@ -104,16 +111,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.index = 0
         self.plot_realtimeInput.clear()
+        self.plot_realtimeFilter.clear()
 
         # Create an empty plot curve
         self.curve = self.plot_realtimeInput.plot([], [], pen="r")
+        self.filterCurve = self.plot_realtimeFilter.plot([], [], pen="g")
 
         # Set up the timer to update every 100 ms (since dt = 0.1 sec)
         self.timer = pg.QtCore.QTimer()
-        self.timer.timeout.connect(self.updatePlot)
+        self.timer.timeout.connect(self.updateSignalsPlot)
         self.timer.start(100)  # 100 ms update rate
 
-    def updatePlot(self):
+    def updateSignalsPlot(self):
         if self.index >= len(self.browsedSignal):
             self.timer.stop()  # Stop updating when all data is shown
             return
@@ -125,7 +134,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Update the plot with new data
         self.curve.setData(self.time[:self.index], self.browsedSignal[:self.index])
-
+        self.filterCurve.setData(self.time[:self.index], self.filteredSignal[:self.index])
 
     def calculate_frequency(self, signal, threshold):
         peaks = []
@@ -148,10 +157,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lbl_speed.setText(f"Speed: {self.speed} Points/Second ")
     
     def mouseMoveEvent(self, event):
-        if self.browsedSignal is None:
+        if self.browsedSignal is None and self.b and self.a:
             self.userInput = True
             self.curve = self.plot_realtimeInput.plot([], [], pen="r")
+            self.filterCurve = self.plot_realtimeFilter.plot([], [], pen="g")
             self.browsedSignal = []
+            self.filteredSignal = []
             self.time = []
             self.startTime = QtCore.QTime.currentTime().msecsSinceStartOfDay() / 1000
 
@@ -164,16 +175,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.time.append(currentTime)
             self.browsedSignal.append(invertedY)
 
+            # Apply filter in real-time
+            filteredOutput = lfilter(self.b, self.a, [invertedY])[0]  # Apply filter to single point
+            self.filteredSignal.append(filteredOutput)
+
             # Update the plot
             self.curve.setData(self.time, self.browsedSignal)
+            self.filterCurve.setData(self.time, self.filteredSignal)
     
     def clearSignal(self):
         self.plot_realtimeInput.clear()
         self.plot_realtimeFilter.clear()
         self.index = 0
-        self.timer.stop()
+        if self.browsedSignal is not None:
+            self.timer.stop()
         self.speed_slider.setDisabled(True)
         self.browsedSignal = None
+        self.filteredSignal = None
         self.userInput = False
 
     def connect_signals(self):
@@ -310,9 +328,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             zeros += [complex(cz[0], cz[1]) for cz in self.conjugate_zeros]
             poles += [complex(cp[0], cp[1]) for cp in self.conjugate_poles]
 
-        b, a = zpk2tf(zeros, poles, 1)
+        self.b, self.a = zpk2tf(zeros, poles, 1)
         # Compute frequency response.
-        w, h = freqz(b, a, worN=1024)
+        w, h = freqz(self.b, self.a, worN=1024)
         magnitude = 20 * np.log10(np.abs(h))
         self.plot_magResponse.clear()
         self.plot_magResponse.plot(w, magnitude, pen='b')

@@ -286,6 +286,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     
         
+   
     def add_coefficient(self):
         # Create a QTableWidgetItem
         coeff_item = QTableWidgetItem(self.comboBox.currentText())

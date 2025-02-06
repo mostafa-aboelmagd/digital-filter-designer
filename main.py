@@ -52,16 +52,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.connect_signals()
         # Install event filter on the unit circle's scene to enable dragging of markers.
         self.plot_unitCircle.scene().installEventFilter(self)
-
-    def customize_plot(self, plot, title):
-        plot.getPlotItem().showGrid(True, True)
-        plot.getPlotItem().setTitle(title)
-        plot.setMenuEnabled(False)
-
-    def init_UI(self):
-        # Customize the appearance of the plots using the new function
-        for view, title in zip(self.viewports, self.plotTitles):
-            self.customize_plot(view, title)
         self.browsedSignal = None
         self.filteredSignal = None
         self.index = 0
@@ -71,6 +61,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.userInput = False
         self.b = None
         self.a = None
+
+    def customize_plot(self, plot, title):
+        plot.getPlotItem().showGrid(True, True)
+        plot.getPlotItem().setTitle(title)
+        plot.setMenuEnabled(False)
     
     def addEventListeners(self):
         self.btn_openFile.clicked.connect(self.browseFile)
@@ -80,7 +75,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnClr.clicked.connect(self.clearSignal)
 
     def browseFile(self):
-        if not self.b or not self.a:
+        if self.b is None and self.a is None:
             QMessageBox.critical(self, "Error", "Design Your Filter First Before Browsing A Signal!")
             return
         filePath, _ = QFileDialog.getOpenFileName(self, "Select a CSV file", "", "CSV Files (*.csv);;All Files (*)")
@@ -95,7 +90,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
                 self.browsedSignal = df.iloc[0].values  # Get the first row as signal
                 self.time = np.arange(len(self.browsedSignal)) * 0.1  # Generate time axis (t = [0, 0.1, 0.2, ...])
-                self.filteredSignal = self.lfilter(self.b, self.a, self.browsedSignal)
+                self.filteredSignal = np.real(lfilter(self.b, self.a, self.browsedSignal))
                 self.speed_slider.setEnabled(True)  # Enable the start button
                 self.startPlotting()
                 #yLimit = max(np.abs(self.browsedSignal))
@@ -157,7 +152,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lbl_speed.setText(f"Speed: {self.speed} Points/Second ")
     
     def mouseMoveEvent(self, event):
-        if self.browsedSignal is None and self.b and self.a:
+        if self.browsedSignal is None and (self.b is not None or self.a is not None):
             self.userInput = True
             self.curve = self.plot_realtimeInput.plot([], [], pen="r")
             self.filterCurve = self.plot_realtimeFilter.plot([], [], pen="g")
@@ -176,7 +171,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.browsedSignal.append(invertedY)
 
             # Apply filter in real-time
-            filteredOutput = lfilter(self.b, self.a, [invertedY])[0]  # Apply filter to single point
+            filteredOutput = np.real(lfilter(self.b, self.a, [invertedY])[0])  # Apply filter to single point
             self.filteredSignal.append(filteredOutput)
 
             # Update the plot

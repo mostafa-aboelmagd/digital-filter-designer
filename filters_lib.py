@@ -13,7 +13,7 @@ from typing import Optional, Tuple, Union
         self.lib_combobox.setItemText(6,"gaussian")
         self.lib_combobox.setItemText(7,"median")
         self.lib_combobox.setItemText(8,"Savitzky-Golay")
-        self.lib_combobox.setItemText(9,"butterworth")
+        self.lib_combobox.setItemText(9,"kalman")
     
 """
 

@@ -17,6 +17,7 @@ from numpy import *
 from numpy.random import *
 from scipy.signal import *
 from save_load_c import *
+from filters_lib import *
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -184,17 +185,59 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btn_Remove_all_poles.clicked.connect(self.removeAllPoles)
         self.plot_unitCircle.scene().sigMouseClicked.connect(self.addZeroOrPole)
         self.pair_mode_toggle.clicked.connect(self.update_plot)
-        self.btn_Export_Zero_Pole.clicked.connect(self.exportZeroPole)
-        self.btn_Import_Zero_Pole.clicked.connect(self.importZeroPole)
         self.btn_addCoeff.clicked.connect(self.add_coefficient)
         self.btn_removeCoeff.clicked.connect(self.remove_coefficient)
         self.table_coeff.itemChanged.connect(self.update_plot_allpass)
         self.all_pass_enable.stateChanged.connect(self.toggle_all_pass)
         self.theta_slider.valueChanged.connect(self.update_theta)
+        self.btn_Export_Zero_Pole.clicked.connect(self.exportZeroPole)
+        self.btn_Import_Zero_Pole.clicked.connect(self.importZeroPole)
+        self.lib_combobox.currentIndexChanged.connect(self.apply_filter)
+        self.type_combobox.currentIndexChanged.connect(self.apply_filter)
     
+    def apply_filter(self):
+        filter_ind = self.lib_combobox.currentIndex()
+        if filter_ind < 5:
+            b,a = FilterDesigner.design_iir(self.lib_combobox.currentText(), self.type_combobox.currentText(), 4, 300, fs=fs)
+        elif filter_ind == 5:
+            b,a = FilterDesigner.design_fir(self.type_combobox.currentText(), 65, 20, fs=fs)
+        elif filter_ind == 6:
+            b,a = FilterDesigner.design_gaussian(31, 10, fs=fs)
+        elif filter_ind == 7:
+            self.filteredSignal = FilterApplier.apply_median(self.browsedSignal, 5)
+            b, a = None, None
+        elif filter_ind == 8:
+            # Based on filters_lib.py, Savitzky-Golay is applied directly via FilterApplier.apply_savgol()
+            # Not through design coefficients b,a
+            self.filteredSignal = FilterApplier.apply_savgol(self.browsedSignal, 21, 3)
+            b, a = None, None
+        elif filter_ind == 9:
+            # Based on filters_lib.py, Kalman filter uses KalmanFilter1D class
+            # Not through design coefficients b,a
+            kf = KalmanFilter1D(self.browsedSignal[0], 1.0, 0.1, 0.5)
+            self.filteredSignal = kf.filter(self.browsedSignal)
+            b, a = None, None
+        if b and a:
+            self.filteredSignal = FilterApplier.apply_iir_fir(b, a, self.browsedSignal)
+        """
+                # TODO: this part needs testing
+
+        """
+
+        
+
+
+        
+    """
+    # TODO: this part needs the implementation of filter realization
+    """
 
     def exportZeroPole(self):
-        b, a = zpk2tf(self.zeros.extend(self.conjugate_zeros), self.poles.extend(self.conjugate_poles), 1)
+        zeros = self.zeros + (self.conjugate_zeros or [])
+        poles = self.poles + (self.conjugate_poles or [])
+        zeros = [abs(complex(z[0], z[1])) for z in zeros]
+        poles = [abs(complex(p[0], p[1])) for p in poles]
+        b, a = zpk2tf(zeros, poles, 1)
         save_filter_to_csv(b, a, "filter_coeffs.csv")
         export_filter_to_c(b, a, "filter_direct.c", realization='direct')
         export_filter_to_c(b, a, "filter_cascade.c", realization='cascade')
@@ -209,8 +252,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.update_plot()
             self.save_state()
 
-        
-        
         
     
     

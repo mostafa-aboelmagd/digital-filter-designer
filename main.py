@@ -1,3 +1,4 @@
+from ast import Not
 from PySide6.QtCore import Qt, QTimer, QEvent
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QTableWidget, QTableWidgetItem, QMessageBox, QFileDialog
@@ -197,12 +198,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     def apply_filter(self):
         filter_ind = self.lib_combobox.currentIndex()
+        if self.type_combobox.currentText() == 'bandpass':
+            cutoff = [150,400]
+        else:
+            cutoff = 100
         if filter_ind < 5:
-            b,a = FilterDesigner.design_iir(self.lib_combobox.currentText(), self.type_combobox.currentText(), 4, 300, fs=fs)
+            b,a = FilterDesigner.design_iir(self.lib_combobox.currentText(), self.type_combobox.currentText(), 4, cutoff, 1000)
         elif filter_ind == 5:
-            b,a = FilterDesigner.design_fir(self.type_combobox.currentText(), 65, 20, fs=fs)
+            b,a = FilterDesigner.design_fir(self.type_combobox.currentText(), 65, cutoff, 1000)
         elif filter_ind == 6:
-            b,a = FilterDesigner.design_gaussian(31, 10, fs=fs)
+            b,a = FilterDesigner.design_gaussian(31, cutoff, 1000)
         elif filter_ind == 7:
             self.filteredSignal = FilterApplier.apply_median(self.browsedSignal, 5)
             b, a = None, None
@@ -217,8 +222,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             kf = KalmanFilter1D(self.browsedSignal[0], 1.0, 0.1, 0.5)
             self.filteredSignal = kf.filter(self.browsedSignal)
             b, a = None, None
-        if b and a:
-            self.filteredSignal = FilterApplier.apply_iir_fir(b, a, self.browsedSignal)
+        if b is not None and a is not None:
+            zeros, poles, k = tf2zpk(b, a)
+            self.zeros = [(z.real, z.imag) for z in zeros]
+            self.poles = [(p.real, p.imag) for p in poles]
+            self.update_plot()
+            self.save_state()
         """
                 # TODO: this part needs testing
 
@@ -233,12 +242,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     """
 
     def exportZeroPole(self):
-        zeros = self.zeros + (self.conjugate_zeros or [])
-        poles = self.poles + (self.conjugate_poles or [])
-        zeros = [abs(complex(z[0], z[1])) for z in zeros]
-        poles = [abs(complex(p[0], p[1])) for p in poles]
+        zeros = self.zeros.extend((self.conjugate_zeros or []))
+        poles = self.poles.extend((self.conjugate_poles or []))
+        zeros = [complex(z[0], z[1]) for z in zeros]
+        poles = [complex(p[0], p[1]) for p in poles]
         b, a = zpk2tf(zeros, poles, 1)
-        save_filter_to_csv(b, a, "filter_coeffs.csv")
+        save_filter_to_csv(b, a, "filter_coef.csv")
         export_filter_to_c(b, a, "filter_direct.c", realization='direct')
         export_filter_to_c(b, a, "filter_cascade.c", realization='cascade')
     
@@ -246,7 +255,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Zero-Pole File", "", "CSV Files (*.csv)")
         if filename:
             b, a = load_filter_from_csv(filename)
-            zeros, poles = tf2zpk(b, a)
+            zeros, poles , k = tf2zpk(b, a)
             self.zeros = [(z.real, z.imag) for z in zeros]
             self.poles = [(p.real, p.imag) for p in poles]
             self.update_plot()
@@ -370,7 +379,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.b, self.a = zpk2tf(zeros, poles, 1)
         # Compute frequency response.
         w, h = freqz(self.b, self.a, worN=1024)
-        magnitude = 20 * np.log10(np.abs(h))
+        magnitude = 20 * np.log10(np.abs(h)+1e-6)
         self.plot_magResponse.clear()
         self.plot_magResponse.plot(w, magnitude, pen='b')
         self.plot_magResponse.setLabel('left', 'Magnitude (dB)')

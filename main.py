@@ -92,7 +92,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
                 self.browsedSignal = df.iloc[0].values  # Get the first row as signal
                 self.time = np.arange(len(self.browsedSignal)) * 0.1  # Generate time axis (t = [0, 0.1, 0.2, ...])
-                self.filteredSignal = np.real(lfilter(self.b, self.a, self.browsedSignal))
+                self.filteredSignal = []
                 self.speed_slider.setEnabled(True)  # Enable the start button
                 self.startPlotting()
                 
@@ -122,14 +122,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.timer.stop()  # Stop updating when all data is shown
             return
         
-        # Display more points as speed increases
-        self.index += self.speed  
-        if self.index >= len(self.browsedSignal):
-            self.index = len(self.browsedSignal)  # Prevent overshooting
+        # Process and filter all skipped points between the current index and the previous index
+        startIndex = self.index
+        endIndex = self.index + self.speed
+        if endIndex  > len(self.browsedSignal):
+            endIndex = len(self.browsedSignal)
+        
+        # Apply filter to each skipped point
+        for i in range(startIndex, endIndex):
+            currentPoint = self.browsedSignal[i]
+            filteredOutput = np.real(lfilter(self.b, self.a, [currentPoint])[0])
+            self.filteredSignal.append(filteredOutput)
 
-        # Update the plot with new data
-        self.curve.setData(self.time[:self.index], self.browsedSignal[:self.index])
-        self.filterCurve.setData(self.time[:self.index], self.filteredSignal[:self.index])
+        # Update the plot with the new data up to the current index
+        self.curve.setData(self.time[:endIndex], self.browsedSignal[:endIndex])
+        self.filterCurve.setData(self.time[:endIndex], self.filteredSignal[:endIndex])
+
+        # Increment the index for the next iteration
+        self.index = endIndex
 
     def updateFilterSpeed(self):
         self.speed = self.speed_slider.value()
@@ -146,7 +156,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.startTime = QtCore.QTime.currentTime().msecsSinceStartOfDay() / 1000
 
         if self.userInput:
-            y = event.pos().y()  # Get mouse Y position
+            y = event.position().y()  # Get mouse Y position
             invertedY = self.plot_mouseInput.height() - y  # Invert Y-axis
             currentTime = QtCore.QTime.currentTime().msecsSinceStartOfDay() / 1000 - self.startTime  # Calculate time elapsed since start
 

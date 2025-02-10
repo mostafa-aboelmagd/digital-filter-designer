@@ -18,7 +18,7 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QTransform)
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QButtonGroup, QCheckBox,
     QComboBox, QDoubleSpinBox, QGridLayout, QGroupBox, QHeaderView,
-    QLabel, QMainWindow, QPushButton, QSizePolicy,
+    QLabel, QMainWindow, QPushButton, QSizePolicy, QSpinBox,
     QSlider, QTableWidget, QTableWidgetItem, QVBoxLayout,
     QWidget)
 
@@ -250,8 +250,33 @@ class Ui_MainWindow(object):
 
         self.gridLayout_5.addWidget(self.lib_combobox, 3, 1, 1, 1)
 
+        self.cut_off_spinbox = QDoubleSpinBox(self.wgt_unitCircle)
+        self.cut_off_spinbox.setObjectName(u"cut_off_spinbox")
+        self.cut_off_spinbox.setRange(0.0, 10000.0)
+        self.cut_off_spinbox.setSuffix(" Hz")
+        self.cut_off_spinbox.setDecimals(2)
+        self.cut_off_spinbox.setStyleSheet(u"background:white;\n"
+                                           "color:black;\n")
 
-        
+        self.gridLayout_5.addWidget(self.cut_off_spinbox, 2, 2, 1, 1)
+
+        self.order_spinbox = QSpinBox(self.wgt_unitCircle)
+        self.order_spinbox.setObjectName(u"order_spinbox")
+        self.order_spinbox.setRange(1, 100)
+        self.order_spinbox.setStyleSheet(u"background:white;\n"
+                                         "color:black;\n")
+
+        self.gridLayout_5.addWidget(self.order_spinbox, 3, 2, 1, 1)
+
+        self.sampling_frequency_spinbox = QDoubleSpinBox(self.wgt_unitCircle)
+        self.sampling_frequency_spinbox.setObjectName(u"sampling_frequency_spinbox")
+        self.sampling_frequency_spinbox.setRange(0.0, 100000.0)
+        self.sampling_frequency_spinbox.setSuffix(" Hz")
+        self.sampling_frequency_spinbox.setDecimals(2)
+        self.sampling_frequency_spinbox.setStyleSheet(u"background:white;\n"
+                                                      "color:black;\n")
+
+        self.gridLayout_5.addWidget(self.sampling_frequency_spinbox, 4, 2, 1, 1)
 
         self.wgt_buttons = QWidget(self.wgt_unitCircle)
         self.wgt_buttons.setObjectName(u"wgt_buttons")
@@ -547,6 +572,9 @@ class Ui_MainWindow(object):
         self.all_pass_enable.setToolTip("Enable all-pass filter configuration")
         self.btn_Undo.setToolTip("Undo last action (Ctrl+Z)")
         self.btn_Redo.setToolTip("Redo last action (Ctrl+Y)")
+        self.cut_off_spinbox.setToolTip(QCoreApplication.translate("MainWindow", u"Set the cut-off frequency", None))
+        self.order_spinbox.setToolTip(QCoreApplication.translate("MainWindow", u"Set the filter order", None))
+        self.sampling_frequency_spinbox.setToolTip(QCoreApplication.translate("MainWindow", u"Set the sampling frequency", None))
         
         # Make plots more attractive
         for plot in [self.plot_magResponse, self.plot_phaseResponse, self.plot_unitCircle,

@@ -30,8 +30,8 @@ class FilterDesigner:
         order: int,
         cutoff: Union[float, Tuple[float, float]],
         fs: float = 1.0,
-        rp: Optional[float] = None,
-        rs: Optional[float] = None
+        rp: Optional[float] = 1,
+        rs: Optional[float] = 40
     ) -> Tuple[np.ndarray, np.ndarray]:
         design_methods = {
             'butterworth': signal.butter,
@@ -41,13 +41,13 @@ class FilterDesigner:
             'elliptic': signal.ellip
         }
         
-        kwargs = {}
-        if family in {'chebyshev1', 'elliptic'}:
-            kwargs['rp'] = rp
-        if family in {'chebyshev2', 'elliptic'}:
-            kwargs['rs'] = rs
-            
-        return design_methods[family](order, cutoff, btype=ftype, fs=fs, **kwargs)
+        if family == 'elliptic':  
+            return design_methods[family](N = order, rp=rp,rs=rs, Wn= cutoff, btype=ftype, fs=fs)
+        if family == 'chebyshev1':
+            return design_methods[family](order, rp, cutoff, btype=ftype, fs=fs)
+        if family == 'chebyshev2':
+            return design_methods[family](order, rs, cutoff, btype=ftype, fs=fs)
+        return design_methods[family](order, cutoff, btype=ftype, fs=fs)
 
     @staticmethod
     def design_fir(

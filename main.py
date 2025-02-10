@@ -207,49 +207,39 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.type_combobox.currentIndexChanged.connect(self.apply_filter)
     
     def apply_filter(self):
+        self.type_combobox.setDisabled(False)
         filter_ind = self.lib_combobox.currentIndex()
+        sampling_frequency = max(self.sampling_frequency_spinbox.value(), 1)
+        cutoff = max(self.cut_off_spinbox.value(), 0.001)
+        cutoff = min(cutoff, (sampling_frequency / 2) - 0.001)
+        order = max(self.order_spinbox.value(), 1)
+
+        
         if self.type_combobox.currentText() == 'bandpass':
-            cutoff = [150,400]
+            freq3db = [0.001, cutoff]
         else:
-            cutoff = 100
+            freq3db = cutoff
+            
         if filter_ind < 5:
-            b,a = FilterDesigner.design_iir(self.lib_combobox.currentText(), self.type_combobox.currentText(), 4, cutoff, 1000)
+            b,a = FilterDesigner.design_iir(self.lib_combobox.currentText(), self.type_combobox.currentText(), order, freq3db, sampling_frequency)
         elif filter_ind == 5:
-            b,a = FilterDesigner.design_fir(self.type_combobox.currentText(), 65, cutoff, 1000)
+            b,a = FilterDesigner.design_fir(self.type_combobox.currentText(), 65, freq3db, sampling_frequency)
         elif filter_ind == 6:
-            b,a = FilterDesigner.design_gaussian(31, cutoff, 1000)
-        elif filter_ind == 7:
-            self.filteredSignal = FilterApplier.apply_median(self.browsedSignal, 5)
-            b, a = None, None
-        elif filter_ind == 8:
-            # Based on filters_lib.py, Savitzky-Golay is applied directly via FilterApplier.apply_savgol()
-            # Not through design coefficients b,a
-            self.filteredSignal = FilterApplier.apply_savgol(self.browsedSignal, 21, 3)
-            b, a = None, None
-        elif filter_ind == 9:
-            # Based on filters_lib.py, Kalman filter uses KalmanFilter1D class
-            # Not through design coefficients b,a
-            kf = KalmanFilter1D(self.browsedSignal[0], 1.0, 0.1, 0.5)
-            self.filteredSignal = kf.filter(self.browsedSignal)
-            b, a = None, None
+            freq3db = cutoff
+            b,a = FilterDesigner.design_gaussian(31, freq3db, sampling_frequency)
+            # make the type combobox disabled and set it to lowpass
+            self.type_combobox.setDisabled(True)
+            self.type_combobox.setCurrentIndex(0)
+        
         if b is not None and a is not None:
             zeros, poles, k = tf2zpk(b, a)
             self.zeros = [(z.real, z.imag) for z in zeros]
             self.poles = [(p.real, p.imag) for p in poles]
             self.update_plot()
             self.save_state()
-        """
-                # TODO: this part needs testing
-
-        """
-
-        
+     
 
 
-        
-    """
-    # TODO: this part needs the implementation of filter realization
-    """
 
     def exportZeroPole(self):
         zeros = self.zeros.extend((self.conjugate_zeros or []))

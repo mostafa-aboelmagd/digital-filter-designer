@@ -353,10 +353,10 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.pair_mode_toggle)
 
-        self.mouse_en = QCheckBox(self.wgt_buttons)
-        self.mouse_en.setObjectName(u"mouse_en")
+        # self.mouse_en = QCheckBox(self.wgt_buttons)
+        # self.mouse_en.setObjectName(u"mouse_en")
 
-        self.verticalLayout_3.addWidget(self.mouse_en)
+        # self.verticalLayout_3.addWidget(self.mouse_en)
 
 
         self.gridLayout_5.addWidget(self.wgt_buttons, 1, 0, 1, 1)
@@ -636,7 +636,7 @@ class Ui_MainWindow(object):
         self.btn_Remove_all_zeros.setText(QCoreApplication.translate("MainWindow", u"Del Zeros", None))
         self.btn_Remove_all_poles.setText(QCoreApplication.translate("MainWindow", u"Del Poles", None))
         self.pair_mode_toggle.setText(QCoreApplication.translate("MainWindow", u"Pair Mode", None))
-        self.mouse_en.setText(QCoreApplication.translate("MainWindow", u"Mouse Enable", None))
+        # self.mouse_en.setText(QCoreApplication.translate("MainWindow", u"Mouse Enable", None))
         self.btn_Import_Zero_Pole.setText(QCoreApplication.translate("MainWindow", u"Import", None))
         self.btn_Import_Zero_Pole.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+O", None))
         self.btn_Export_Zero_Pole.setText(QCoreApplication.translate("MainWindow", u"Export", None))

@@ -18,10 +18,10 @@ def load_filter_from_csv(filename):
     with open(filename, 'r', newline='') as csvfile:
         reader = csv.reader(csvfile)
         rows = list(reader)
-        b = np.array([float(x) for x in rows[0]])
-        a = np.array([float(x) for x in rows[1]])
+        zeros = np.array(rows[0])
+        poles = np.array(rows[1])
     print(f"Filter coefficients loaded from {filename}")
-    return b, a
+    return zeros, poles
 
 # -----------------------------------
 # Filter Realisation Implementations

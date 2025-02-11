@@ -242,8 +242,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def exportZeroPole(self):
-        zeros = self.zeros.extend((self.conjugate_zeros or []))
-        poles = self.poles.extend((self.conjugate_poles or []))
+        zeros = self.zeros + (self.conjugate_zeros or [])
+        poles = self.poles + (self.conjugate_poles or [])
         zeros = [complex(z[0], z[1]) for z in zeros]
         poles = [complex(p[0], p[1]) for p in poles]
         b, a = zpk2tf(zeros, poles, 1)
@@ -254,8 +254,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def importZeroPole(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Zero-Pole File", "", "CSV Files (*.csv)")
         if filename:
-            b, a = load_filter_from_csv(filename)
-            zeros, poles , k = tf2zpk(b, a)
+            zeros, poles = load_filter_from_csv(filename)
             self.zeros = [(z.real, z.imag) for z in zeros]
             self.poles = [(p.real, p.imag) for p in poles]
             self.update_plot()

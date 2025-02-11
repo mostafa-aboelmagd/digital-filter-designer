@@ -8,7 +8,6 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from MainWindow_ui import Ui_MainWindow
 import numpy as np
 import pyqtgraph as pg
-from scipy.signal import freqz
 import pandas as pd
 import os
 import scipy
@@ -38,7 +37,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.checked_coeffs = [0.0]
         self.theta = 0.0
         self.colors = ['#FF0000', '#FFA500', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#800080', '#FF00FF', '#FF1493', '#00FF7F', '#FFD700', '#FF6347', '#48D1CC', '#8A2BE2', '#20B2AA']
-        
+        self.total_phase = 0  # Add this line to initialize total_phase
         self.viewports = [self.plot_unitCircle, self.plot_magResponse, self.plot_phaseResponse,
                           self.plot_allPass, self.plot_realtimeInput, self.plot_realtimeFilter, self.plot_mouseInput]
         self.plotTitles = ['Zero/Pole Plot', 'Magnitude Response', 'Phase Response', 'All Pass Response',
@@ -176,7 +175,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plot_realtimeInput.clear()
         self.plot_realtimeFilter.clear()
         self.index = 0
-        if self.browsedSignal is not None:
+        if self.browsedSignal is not None and not self.userInput:
             self.timer.stop()
         self.speed_slider.setDisabled(True)
         self.browsedSignal = None
@@ -365,6 +364,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not self.zeros and not self.poles:
             self.plot_magResponse.clear()
             self.plot_phaseResponse.clear()
+            self.b = None
+            self.a = None
+            self.clearSignal()
             return
 
         # Convert zeros and poles into complex numbers.
@@ -386,9 +388,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         phase = np.unwrap(np.angle(h))
         self.plot_phaseResponse.clear()
-        self.plot_phaseResponse.plot(w, phase, pen='r')
+        self.plot_phaseResponse.plot(w, phase, pen='r', name=' Original Phase Response')
         self.plot_phaseResponse.setLabel('left', 'Phase (radians)')
         self.plot_phaseResponse.setLabel('bottom', 'Frequency [rad/sample]')
+        # print("W : " , w)
+        # print("H : " , h)
 
         # Plot all-pass filter phase response if enabled
         if self.allpass_en:
@@ -397,6 +401,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             phase_allpass = self.fix_phase(h)
             self.plot_phaseResponse.plot(w, phase_allpass, pen='y', name='AllPass Phase Response')
             self.plot_phaseResponse.addLegend()
+        
+        if self.userInput:
+            self.clearSignal()
+        if self.browsedSignal is not None:
+            self.startPlotting()
 
     def save_state(self):
     
@@ -467,7 +476,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.save_state()
                     return True
         # For all other events, use the default processing.
+        self.save_state()
         return super().eventFilter(source, event)
+        # self.save_state()
+    
 
     
         
@@ -481,14 +493,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Insert the item into the table widget
         self.table_coeff.insertRow(self.table_coeff.rowCount())
         self.table_coeff.setItem(self.table_coeff.rowCount()-1, 0, coeff_item)
+        self.update_plot_allpass()
+        self.update_response_plots()
+        # Undo and Redo buttons
+        self.save_state()
+
         
         
     # Removes the selected row from the table widget
     def remove_coefficient(self):
         self.table_coeff.removeRow(self.table_coeff.currentRow()) 
+        # delete the corresponding coefficient from the list of coefficients as well the ploted all pass filter
+        self.update_plot_allpass()
+        self.update_response_plots()
+        # Undo and Redo buttons
+        self.save_state()
+
+
      
     def get_all_pass_filter(self):
-        self.checked_coeffs = [0.0] # List to hold the selected coefficient values
+        self.checked_coeffs = [0.0]  # List to hold the selected coefficient values
         
         for row in range(self.table_coeff.rowCount()):
             item = self.table_coeff.item(row, 0) 
@@ -501,28 +525,39 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.all_pass_zeros = self.zeros.copy()
         self.all_pass_poles = self.poles.copy()
 
-        w, all_pass_phs = 0, 0
+        w, all_pass_phs = None, None
         self.plot_allPass.clear()
 
         for i in range(len(self.checked_coeffs)):
             a = self.checked_coeffs[i]
 
-            if a ==1:
-                a= 0.99999999
+            if a == 1:
+                a = 0.99999999
             a = complex(a, 0)
             
             # Check if denominator is not zero before performing division
             if np.abs(a) > 0:
                 a_conj = 1 / np.conj(a)
 
-                # Apply theta to the zero and pole
+                # Use theta as an input parameter to set location in the graph
                 zero = a_conj * np.exp(1j * self.theta)
                 pole = a * np.exp(1j * self.theta)
 
-                w, h = freqz([-np.conj(zero), 1.0], [1.0, -pole])
-                all_pass_phs = np.add(np.angle(h), all_pass_phs)
-                self.plot_allPass.plot(w, np.angle(h), pen=self.colors[i % len(self.colors)], name = f'All pass{a.real}')
-                self.plot_allPass.setLabel('left', 'All Pass Phase', units='degrees')
+                # b_allpass, a_allpass = zpk2tf([zero], [pole], 1)
+                # b_allpass, a_allpass = [-np.conj(zero), 1.0], [1.0, -pole]
+
+                # w, h = freqz([-np.conj(zero), 1.0], [1.0, -pole])
+
+                # self.plot_allPass.plot(w, np.unwrap(np.angle(h)), pen='g', name=f'All pass {a.real}')
+                # self.plot_allPass.setLabel('left', 'All Pass Phase', units='radians')
+
+                w, h = freqz(np.poly((zero.real, zero.imag)), np.poly((pole.real, pole.imag)))
+                self.frequencies, self.phase_response = w, self.fix_phase(h)
+                self.plot_allPass.plot(self.frequencies, self.phase_response, pen=self.colors[i % len(self.colors)] , name=f'All pass {pole.real}')
+                if all_pass_phs is None:
+                    all_pass_phs = np.angle(h)
+                else:
+                    all_pass_phs = np.add(all_pass_phs, np.angle(h))         
                 
                 # Add points to lists
                 self.all_pass_poles.append((pole.real, pole.imag))
@@ -535,8 +570,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for pole in self.all_pass_poles:
             self.plot_unitCircle.plot([pole[0]], [pole[1]], pen=None, symbol='x', symbolBrush='b')
 
+        # for zero, pole in zip(self.all_pass_zeros, self.all_pass_poles):
+            
+        #         w, h = freqz(np.poly(zero), np.poly(pole))
+        #         self.frequencies, self.phase_response = w, self.fix_phase(h)
+        #         self.plot_allPass.plot(self.frequencies, self.phase_response, pen=self.colors[i % len(self.colors)] , name=f'All pass {pole[0]}')
+
         if len(self.checked_coeffs) > 1:
-            self.plot_allPass.plot(w, all_pass_phs, pen=self.colors[-1], name = 'All pass Total')
+            self.plot_allPass.plot(w, all_pass_phs, pen=self.colors[-1], name='All pass Total')
         self.plot_allPass.addLegend()
 
         # Combine zeros and poles
@@ -549,27 +590,58 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return z, p, z_allpass, p_allpass
 
     def update_plot_allpass(self):
-        self.update_plot()
+        self.update_response_plots()
         _, _, z, p = self.get_all_pass_filter()
         # Calculate frequency response
         w, h = freqz(np.poly(z), np.poly(p))
         self.phase_response = self.fix_phase(h)
 
     def fix_phase(self, h):
-        phase_response_deg = np.rad2deg(np.angle(h))
-        phase_response_constrained  = np.where(phase_response_deg < 0, phase_response_deg + 360, phase_response_deg)
-        phase_response_constrained  = np.where(phase_response_constrained  > 180, phase_response_constrained  - 360, phase_response_constrained )
-        
-        return phase_response_constrained 
+        phase_response_rad = np.unwrap(np.angle(h))
+        return phase_response_rad
 
     def toggle_all_pass(self):
         self.allpass_en = not self.allpass_en
         self.update_plot_allpass()
-        self.update_plot()
+        self.update_response_plots()
+
+    def update_response_plots(self):
+        # Combine zeros and poles
+        z, p, z_allpass, p_allpass = self.get_all_pass_filter()
+
+        # Calculate frequency response
+        w, h = freqz(np.poly(z), np.poly(p))
+
+        # Update class attributes
+        self.frequencies, self.mag_response, self.phase_response = w, np.abs(h), self.fix_phase(h)
+
+        # Plot magnitude response
+        self.plot_response(self.plot_magResponse, self.frequencies, self.mag_response, pen='b', label='Magnitude', units='Linear', unit_bot="Radians", name="AllPass magnitude Response")
+
+        # Plot phase response
+        self.plot_response(self.plot_phaseResponse, self.frequencies, self.phase_response, pen='r', label='Phase', units='Degrees', unit_bot="Radians", name="Normal Phase Response")
+        
+        w, h = freqz(np.poly(z_allpass), np.poly(p_allpass))
+        self.frequencies, self.mag_response, self.phase_response = w, np.abs(h), self.fix_phase(h)
+        self.plot_phaseResponse.plot(x=self.frequencies, y=self.phase_response, pen='y', name="AllPass Phase Response")
+        self.b, self.a = zpk2tf(z_allpass, p_allpass, 1)
+
+        # Plot magnitude response
+        self.plot_response(self.plot_magResponse, self.frequencies, self.mag_response, pen='b', label='Magnitude all pass', units='Linear', unit_bot="Radians", name="AllPass magnitude Response")
+        #self.filteredSignal[:self.index] = np.real(lfilter(self.b, self.a, self.browsedSignal[:self.index]))
+
+    def plot_response(self, plot, x, y, pen, label, units, unit_bot, name=""):
+        plot.clear()
+        plot.plot(x, y, pen=pen, name=name)
+        plot.setLabel('left', label, units=units)
+        plot.setLabel('bottom', label, units=unit_bot)
+        self.plot_phaseResponse.addLegend()
 
     def update_theta(self, value):
         self.theta = np.deg2rad(value)
-        self.update_plot_allpass()
+        if self.allpass_en and len(self.checked_coeffs) > 1:
+            self.update_plot_allpass()
+        self.update_plot()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

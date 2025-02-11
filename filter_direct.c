@@ -1,10 +1,10 @@
 /* Filter Realisation: Direct Form II */
 #include <stdio.h>
 
-#define NUM_B 6
-#define NUM_A 5
-static const double b[NUM_B] = { 1.50000000, 0.00482434, 0.01929737, 0.02894606, 0.01929737, 0.00482434 };
-static const double a[NUM_A] = { 1.00000000, -2.36951301, 2.31398841, -1.05466541, 0.18737949 };
+#define NUM_B 7
+#define NUM_A 7
+static const double b[NUM_B] = { 1.00000000, -0.00000000, -3.00000000, 0.00000000, 3.00000000, -0.00000000, -1.00000000 };
+static const double a[NUM_A] = { 1.00000000, -5.62356098, 13.18538363, -16.50032958, 11.62429681, -4.37133452, 0.68554463 };
 
 /* Delay elements: NUM_A-1 */
 #define N_DELAY (NUM_A - 1)

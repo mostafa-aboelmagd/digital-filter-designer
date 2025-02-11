@@ -252,7 +252,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         zeros = [complex(z[0], z[1]) for z in zeros]
         poles = [complex(p[0], p[1]) for p in poles]
         b, a = zpk2tf(zeros, poles, 1)
-        save_filter_to_csv(b, a, "filter_coef.csv")
+        save_filter_to_csv(zeros, poles, "filter_coef.csv")
         export_filter_to_c(b, a, "filter_direct.c", realization='direct')
         export_filter_to_c(b, a, "filter_cascade.c", realization='cascade')
     
@@ -260,6 +260,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Zero-Pole File", "", "CSV Files (*.csv)")
         if filename:
             zeros, poles = load_filter_from_csv(filename)
+            zeros = [complex(row.strip("()")) for row in zeros]
+            poles = [complex(row.strip("()")) for row in poles]
             self.zeros = [(z.real, z.imag) for z in zeros]
             self.poles = [(p.real, p.imag) for p in poles]
             self.update_plot()

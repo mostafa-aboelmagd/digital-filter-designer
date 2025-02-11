@@ -8,7 +8,6 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from MainWindow_ui import Ui_MainWindow
 import numpy as np
 import pyqtgraph as pg
-from scipy.signal import freqz
 import pandas as pd
 import os
 import scipy
@@ -621,7 +620,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.b, self.a = zpk2tf(z_allpass, p_allpass, 1)
 
         # Plot magnitude response
-        self.plot_response(self.plot_magResponse, self.frequencies, self.mag_response, pen='r', label='Magnitude all pass', units='Linear', unit_bot="Radians", name="AllPass magnitude Response")
+        self.plot_response(self.plot_magResponse, self.frequencies, self.mag_response, pen='b', label='Magnitude all pass', units='Linear', unit_bot="Radians", name="AllPass magnitude Response")
 
 
     def plot_response(self, plot, x, y, pen, label, units, unit_bot, name=""):

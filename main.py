@@ -382,7 +382,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         w, h = freqz(self.b, self.a, worN=1024)
         magnitude = 20 * np.log10(np.abs(h)+1e-6)
         self.plot_magResponse.clear()
-        self.plot_magResponse.plot(w, magnitude, pen='b')
+        self.plot_magResponse.plot(w, magnitude, pen='r')
         self.plot_magResponse.setLabel('left', 'Magnitude (dB)')
         self.plot_magResponse.setLabel('bottom', 'Frequency [rad/sample]')
 
@@ -616,7 +616,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.frequencies, self.mag_response, self.phase_response = w, np.abs(h), self.fix_phase(h)
 
         # Plot magnitude response
-        self.plot_response(self.plot_magResponse, self.frequencies, self.mag_response, pen='b', label='Magnitude', units='Linear', unit_bot="Radians", name="AllPass magnitude Response")
+        self.plot_response(self.plot_magResponse, self.frequencies, self.mag_response, pen='r', label='Magnitude', units='Linear', unit_bot="Radians", name="AllPass magnitude Response")
 
         # Plot phase response
         self.plot_response(self.plot_phaseResponse, self.frequencies, self.phase_response, pen='r', label='Phase', units='Degrees', unit_bot="Radians", name="Normal Phase Response")
@@ -627,7 +627,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.b, self.a = zpk2tf(z_allpass, p_allpass, 1)
 
         # Plot magnitude response
-        self.plot_response(self.plot_magResponse, self.frequencies, self.mag_response, pen='b', label='Magnitude all pass', units='Linear', unit_bot="Radians", name="AllPass magnitude Response")
+        self.plot_response(self.plot_magResponse, self.frequencies, self.mag_response, pen='r', label='Magnitude all pass', units='Linear', unit_bot="Radians", name="AllPass magnitude Response")
         #self.filteredSignal[:self.index] = np.real(lfilter(self.b, self.a, self.browsedSignal[:self.index]))
 
     def plot_response(self, plot, x, y, pen, label, units, unit_bot, name=""):

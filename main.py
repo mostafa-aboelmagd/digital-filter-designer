@@ -2,7 +2,7 @@ from ast import Not
 from PySide6.QtCore import Qt, QTimer, QEvent
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QTableWidget, QTableWidgetItem, QMessageBox, QFileDialog
-from scipy.signal import freqz, lfilter, zpk2tf, filtfilt
+from scipy.signal import freqz, lfilter, zpk2tf, filtfilt, lfilter_zi
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 from MainWindow_ui import Ui_MainWindow
@@ -93,6 +93,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.time = np.arange(len(self.browsedSignal)) * 0.1  # Generate time axis (t = [0, 0.1, 0.2, ...])
                 self.filteredSignal = []
                 self.speed_slider.setEnabled(True)  # Enable the start button
+                self.zi = lfilter_zi(self.b, self.a) * self.browsedSignal[0]
                 self.startPlotting()
                 
             except Exception as e:
@@ -129,9 +130,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # Apply filter to each skipped point
         for i in range(startIndex, endIndex):
-            currentPoint = self.browsedSignal[i]
-            filteredOutput = np.real(lfilter(self.b, self.a, [currentPoint])[0])
-            self.filteredSignal.append(filteredOutput)
+            currentPoint = np.array([self.browsedSignal[i]])
+            filteredOutput, self.zi = lfilter(self.b, self.a, currentPoint, zi=self.zi)
+            filteredOutput = np.real(filteredOutput)
+            self.filteredSignal.append(filteredOutput[0])
 
         # Update the plot with the new data up to the current index
         self.curve.setData(self.time[:endIndex], self.browsedSignal[:endIndex])
@@ -152,6 +154,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.browsedSignal = []
             self.filteredSignal = []
             self.time = []
+            self.zi = None
             self.startTime = QtCore.QTime.currentTime().msecsSinceStartOfDay() / 1000
 
         if self.userInput:
@@ -162,10 +165,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # Append new data points
             self.time.append(currentTime)
             self.browsedSignal.append(invertedY)
+            if self.zi is None:
+                self.zi = lfilter_zi(self.b, self.a) * self.browsedSignal[0]
 
-            # Apply filter in real-time
-            filteredOutput = np.real(lfilter(self.b, self.a, [invertedY])[0])  # Apply filter to single point
-            self.filteredSignal.append(filteredOutput)
+            currentPoint = np.array([invertedY])
+            filteredOutput, self.zi = lfilter(self.b, self.a, currentPoint, zi=self.zi)
+            filteredOutput = np.real(filteredOutput)
+            self.filteredSignal.append(filteredOutput[0])
 
             # Update the plot
             self.curve.setData(self.time, self.browsedSignal)

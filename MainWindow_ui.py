@@ -382,10 +382,13 @@ class Ui_MainWindow(object):
         self.grpbx_AllPassFilter = QGroupBox(self.centralwidget)
         self.grpbx_AllPassFilter.setObjectName(u"grpbx_AllPassFilter")
         sizePolicy1.setHeightForWidth(self.grpbx_AllPassFilter.sizePolicy().hasHeightForWidth())
-        self.grpbx_AllPassFilter.setSizePolicy(sizePolicy1)
-        self.grpbx_AllPassFilter.setMaximumSize(QSize(300, 16777215))
+        self.grpbx_AllPassFilter.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.grpbx_AllPassFilter.setMaximumSize(QSize(500, 700))  # Remove the fixed maximum size
         self.gridLayout_3 = QGridLayout(self.grpbx_AllPassFilter)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.gridLayout_3.setContentsMargins(10, 10, 10, 10)  # Adjust padding
+        self.gridLayout_3.setSpacing(10)  # Adjust spacing
+
         self.groupBox = QGroupBox(self.grpbx_AllPassFilter)
         self.groupBox.setObjectName(u"groupBox")
         self.gridLayout_7 = QGridLayout(self.groupBox)
@@ -416,24 +419,28 @@ class Ui_MainWindow(object):
         self.plot_allPass = PlotWidget(self.grpbx_AllPassFilter)
         self.plot_allPass.setObjectName(u"plot_allPass")
         self.plot_allPass.setMinimumSize(QSize(0, 70))
-        self.plot_allPass.setMaximumSize(QSize(300, 16777215))
+        self.plot_allPass.setMaximumSize(QSize(16777215, 16777215))  # Remove the fixed maximum size
 
         self.gridLayout_3.addWidget(self.plot_allPass, 2, 0, 1, 1)
 
         self.wgt_coefficient = QWidget(self.grpbx_AllPassFilter)
         self.wgt_coefficient.setObjectName(u"wgt_coefficient")
         self.wgt_coefficient.setMinimumSize(QSize(0, 70))
-        self.wgt_coefficient.setMaximumSize(QSize(300, 70))
+        self.wgt_coefficient.setMaximumSize(QSize(16777215, 70))  # Remove the fixed maximum size
         self.gridLayout_6 = QGridLayout(self.wgt_coefficient)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
+        self.gridLayout_6.setContentsMargins(0, 0, 0, 0)  # Adjust padding
+        self.gridLayout_6.setSpacing(10)  # Adjust spacing
+
         self.all_pass_enable = QCheckBox(self.wgt_coefficient)
         self.all_pass_enable.setObjectName(u"all_pass_enable")
-        self.all_pass_enable.setStyleSheet("font-size: 20")
+        self.all_pass_enable.setStyleSheet("font-size: 20px; padding: 0px;")
 
         self.gridLayout_6.addWidget(self.all_pass_enable, 1, 0, 1, 2)
 
         self.btn_addCoeff = QPushButton(self.wgt_coefficient)
         self.btn_addCoeff.setObjectName(u"btn_addCoeff")
+        self.btn_addCoeff.setStyleSheet("font-size: 20px; padding: 0px;")
 
         self.gridLayout_6.addWidget(self.btn_addCoeff, 1, 2, 1, 1)
 
@@ -441,11 +448,13 @@ class Ui_MainWindow(object):
         self.label.setObjectName(u"label")
         sizePolicy1.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
         self.label.setSizePolicy(sizePolicy1)
+        self.label.setStyleSheet("font-size: 20px;")
 
         self.gridLayout_6.addWidget(self.label, 0, 0, 1, 1)
 
         self.btn_removeCoeff = QPushButton(self.wgt_coefficient)
         self.btn_removeCoeff.setObjectName(u"btn_removeCoeff")
+        self.btn_removeCoeff.setStyleSheet("font-size: 20px; padding: 0px;")
 
         self.gridLayout_6.addWidget(self.btn_removeCoeff, 1, 3, 1, 1)
 

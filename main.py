@@ -175,7 +175,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plot_realtimeInput.clear()
         self.plot_realtimeFilter.clear()
         self.index = 0
-        if self.browsedSignal is not None:
+        if self.browsedSignal is not None and not self.userInput:
             self.timer.stop()
         self.speed_slider.setDisabled(True)
         self.browsedSignal = None
@@ -365,6 +365,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not self.zeros and not self.poles:
             self.plot_magResponse.clear()
             self.plot_phaseResponse.clear()
+            self.b = None
+            self.a = None
+            self.clearSignal()
             return
 
         # Convert zeros and poles into complex numbers.
@@ -399,6 +402,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             phase_allpass = self.fix_phase(h)
             self.plot_phaseResponse.plot(w, phase_allpass, pen='y', name='AllPass Phase Response')
             self.plot_phaseResponse.addLegend()
+        
+        if self.userInput:
+            self.clearSignal()
+        if self.browsedSignal is not None:
+            self.startPlotting()
 
     def save_state(self):
     
@@ -621,7 +629,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Plot magnitude response
         self.plot_response(self.plot_magResponse, self.frequencies, self.mag_response, pen='b', label='Magnitude all pass', units='Linear', unit_bot="Radians", name="AllPass magnitude Response")
-
+        #self.filteredSignal[:self.index] = np.real(lfilter(self.b, self.a, self.browsedSignal[:self.index]))
 
     def plot_response(self, plot, x, y, pen, label, units, unit_bot, name=""):
         plot.clear()

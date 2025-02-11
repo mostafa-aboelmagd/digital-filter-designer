@@ -470,7 +470,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.save_state()
                     return True
         # For all other events, use the default processing.
+        self.save_state()
         return super().eventFilter(source, event)
+        # self.save_state()
+    
 
     
         
@@ -484,11 +487,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Insert the item into the table widget
         self.table_coeff.insertRow(self.table_coeff.rowCount())
         self.table_coeff.setItem(self.table_coeff.rowCount()-1, 0, coeff_item)
+        self.update_plot_allpass()
+        self.update_response_plots()
+        # Undo and Redo buttons
+        self.save_state()
+
         
         
     # Removes the selected row from the table widget
     def remove_coefficient(self):
         self.table_coeff.removeRow(self.table_coeff.currentRow()) 
+        # delete the corresponding coefficient from the list of coefficients as well the ploted all pass filter
+        self.update_plot_allpass()
+        self.update_response_plots()
+        # Undo and Redo buttons
+        self.save_state()
+
+
      
     def get_all_pass_filter(self):
         self.checked_coeffs = [0.0]  # List to hold the selected coefficient values
